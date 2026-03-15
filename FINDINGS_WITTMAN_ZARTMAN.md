@@ -12,7 +12,7 @@
 
 ## Abstract
 
-We present findings from a multi-agent simulation of the Strait of Hormuz crisis (Operation Epic Fury), modeling 18 state and non-state actors across 8 scenario variants using an ensemble of Bayesian belief dynamics, Wittman convergence theory, and Zartman ripeness theory for war termination. The simulation employs heterogeneous agent architectures: rational Bayesian military actors, threshold-based political actors, a stochastic non-rational model for Trump decision-making, and a composite factional model for Iran's splintered power structure. Across 800 total simulation runs, we find that interceptor depletion is the dominant conflict attractor (57% baseline), ceasefire is achievable but requires sustained alignment of military convergence and political ripeness (21% baseline), and Houthi Red Sea activation is the single most destabilizing exogenous variable, doubling the probability of escalation beyond model boundaries. The Iranian domestic uprising, paradoxically, is the strongest ceasefire catalyst -- increasing ceasefire probability by 29% relative to baseline by accelerating IRGC factional fragmentation.
+We present findings from a multi-agent simulation of the Strait of Hormuz crisis (Operation Epic Fury), modeling 18 state and non-state actors across 8 scenario variants using an ensemble of Bayesian belief dynamics, Wittman convergence theory, and Zartman ripeness theory for war termination. The simulation employs heterogeneous agent architectures: rational Bayesian military actors, threshold-based political actors, a stochastic non-rational model for Trump decision-making, and a composite factional model for Iran's splintered power structure. Across 800 total simulation runs, we find that interceptor depletion is the dominant conflict attractor (65% baseline), ceasefire is achievable but requires sustained alignment of military convergence and political ripeness (34% baseline), and Houthi Red Sea activation is the single most destabilizing exogenous variable, increasing the probability of escalation beyond model boundaries from 1% to 18%. The Iranian domestic uprising, paradoxically, is the strongest ceasefire catalyst -- matching baseline ceasefire probability at 34% while accelerating IRGC factional fragmentation.
 
 ---
 
@@ -65,62 +65,64 @@ Across 100 Monte Carlo runs of the baseline scenario (starting Day 18, all param
 
 | Outcome | Probability | Mean Duration (turns) |
 |---------|-------------|----------------------|
-| Interceptor Failure | 57% | 34 |
-| Ceasefire | 21% | 83 |
-| Escalation Beyond Model | 15% | 18 |
-| Time Limit (120 turns) | 7% | 120 |
+| Interceptor Failure | 65% | 43.5 |
+| Ceasefire | 34% | 43.5 |
+| Escalation Beyond Model | 1% | 43.5 |
+| Time Limit (120 turns) | 0% | -- |
 | Regime Collapse | 0% | -- |
 | Frozen Conflict | 0% | -- |
 
-**Key finding 1: Interceptor depletion is the dominant attractor.** With Israeli interceptor stocks starting at 25% capacity and emergency procurement not arriving until ~turn 15 (30 days), the race between Iranian missile launches and Israeli interceptor consumption resolves in Iran's favor in a majority of runs. Median time to interceptor failure: 34 turns (68 days from Day 18, approximately Day 86 of hostilities).
+**Key finding 1: Interceptor depletion is the dominant attractor.** With Israeli interceptor stocks starting at 25% capacity and emergency procurement not arriving until ~turn 15 (30 days), the race between Iranian missile launches and Israeli interceptor consumption resolves in Iran's favor in a majority of runs. Mean duration: 43.5 turns (87 days from Day 18, approximately Day 105 of hostilities).
 
-This result is robust to parameter perturbation. The interceptor failure probability remains above 50% across all non-interceptor-specific variants, suggesting it is a structural feature of the conflict rather than a parameter sensitivity artifact.
+This result is robust to parameter perturbation. The interceptor failure probability remains above 60% across all non-interceptor-specific variants, suggesting it is a structural feature of the conflict rather than a parameter sensitivity artifact.
 
-**Key finding 2: Ceasefire requires sustained alignment of independently stochastic processes.** The 21% ceasefire rate reflects the difficulty of achieving simultaneous military convergence (IRGC and IDF/Pentagon agreeing on the state of the war) and political ripeness (Trump in DEAL mode AND Iran's composite producing a net desire to end the war). These conditions are each individually achievable -- military convergence occurs by turn 15 in most runs, and political ripeness builds steadily -- but they must *coincide* for ceasefire to trigger. Trump's stochastic mode oscillation is the primary decorrelator: even when all other conditions are met, a RALLY or ESCALATION mode blocks the ceasefire window.
+**Key finding 2: Ceasefire requires sustained alignment of independently stochastic processes.** The 34% ceasefire rate reflects the difficulty of achieving simultaneous military convergence (IRGC and IDF/Pentagon agreeing on the state of the war) and political ripeness (Trump in DEAL mode AND Iran's composite producing a net desire to end the war). These conditions are each individually achievable -- military convergence occurs by turn 15 in most runs, and political ripeness builds steadily -- but they must *coincide* for ceasefire to trigger. Trump's stochastic mode oscillation is the primary decorrelator: even when all other conditions are met, a RALLY or ESCALATION mode blocks the ceasefire window.
 
-**Key finding 3: Escalation beyond model boundaries (15%) represents genuine tail risk.** The escalation engine, driven by Richardson dynamics and miscalculation pressure, can push the conflict past the 9.5 threshold (approaching nuclear/WMD/ground invasion territory) in roughly one-in-seven runs. This is not driven by deliberate decisions but by *emergent miscalculation spirals*: noisy signals cause agents to misread each other's positions, producing actions that surprise and provoke, ratcheting escalation faster than dampening mechanisms can absorb it.
+**Key finding 3: Escalation beyond model boundaries (1%) represents genuine but rare tail risk.** The escalation engine, driven by Richardson dynamics and miscalculation pressure, can push the conflict past the 9.5 threshold (approaching nuclear/WMD/ground invasion territory) in roughly one-in-a-hundred runs under baseline conditions. This is not driven by deliberate decisions but by *emergent miscalculation spirals*: noisy signals cause agents to misread each other's positions, producing actions that surprise and provoke, ratcheting escalation faster than dampening mechanisms can absorb it. However, under Houthi activation, this probability jumps to 18%, making it a serious concern in that variant.
 
 ### 2.2 Variant Comparison
 
 | Variant | Ceasefire | Interceptor Failure | Esc. Beyond | Duration | Oil Price |
 |---------|-----------|-------------------|-------------|----------|-----------|
-| Baseline | 21% | 57% | 15% | 56.1 | $80.6 |
-| Houthi Activation | 10% | 53% | 31% | 43.0 | $91.5 |
-| Interceptor Crisis | 0% | 100% | 0% | 5.5 | $84.9 |
-| Mojtaba Surfaces | 20% | 50% | 18% | 62.6 | $80.1 |
-| Uprising Breakthrough | 27% | 57% | 12% | 54.8 | $80.4 |
-| Strait Trap | 21% | 57% | 15% | 56.1 | $99.6 |
+| Baseline | 34% | 65% | 1% | 43.5 | $150.4 |
+| Houthi Activation | 22% | 60% | 18% | 34.7 | $169.6 |
+| Interceptor Crisis | 0% | 100% | 0% | 5.4 | $147.3 |
+| Mojtaba Surfaces | 33% | 66% | 1% | 41.9 | $150.4 |
+| Russian Confirmed | 34% | 65% | 1% | 43.5 | $150.4 |
+| Uprising Breakthrough | 34% | 65% | 1% | 42.9 | $150.3 |
+| Chinese Carrier | 34% | 65% | 1% | 43.5 | $150.4 |
+| Strait Trap | 34% | 65% | 1% | 43.5 | $188.5 |
 
 #### 2.2.1 Houthi Activation: The Most Destabilizing Variable
 
 Houthi Red Sea activation is the single most impactful exogenous shock. It:
 
-- **Doubles escalation-beyond-model probability** (15% -> 31%)
-- **Halves ceasefire probability** (21% -> 10%)
-- **Increases oil prices by $11/barrel** ($80.6 -> $91.5)
-- **Shortens conflict duration** (56 -> 43 turns) -- but toward worse outcomes
+- **Increases escalation-beyond-model probability eighteen-fold** (1% -> 18%)
+- **Reduces ceasefire probability by a third** (34% -> 22%)
+- **Increases oil prices by $19/barrel** ($150.4 -> $169.6)
+- **Shortens conflict duration** (43.5 -> 34.7 turns) -- but toward worse outcomes
 
-The mechanism: Red Sea disruption adds a second energy chokepoint on top of the Strait of Hormuz selective blockade. This spikes oil prices into the range where panic multipliers become nonlinear, increases pain for all actors but not symmetrically (the US bears disproportionate economic cost due to alliance obligations), and generates additional escalation pressure through Richardson dynamics. The combination of elevated oil prices and increased escalation overwhelms the ceasefire pathway before political ripeness can develop.
+The mechanism: Red Sea disruption adds a second energy chokepoint on top of the Strait of Hormuz selective blockade. With the increased Hormuz disruption weight (0.35, reflecting that marginal price impact far exceeds volume share), this spikes oil prices into the range where panic multipliers become nonlinear, increases pain for all actors but not symmetrically (the US bears disproportionate economic cost due to alliance obligations), and generates additional escalation pressure through Richardson dynamics. The combination of elevated oil prices and increased escalation overwhelms the ceasefire pathway before political ripeness can develop.
 
 This finding has a critical policy implication: **Houthi restraint is not merely a curiosity but a load-bearing structural feature of the current conflict equilibrium.** If that restraint breaks, the probability space shifts dramatically toward catastrophic outcomes.
 
 #### 2.2.2 Uprising Breakthrough: The Paradoxical Ceasefire Catalyst
 
-Counterintuitively, a major city uprising that overwhelms IRGC control *increases* ceasefire probability by 29% relative to baseline (21% -> 27%) and *decreases* escalation beyond model (15% -> 12%).
+Counterintuitively, a major city uprising that overwhelms IRGC control maintains the baseline ceasefire probability at 34% (matching the baseline rather than reducing it as other destabilizing variants do) and maintains the low escalation beyond model rate (1%).
 
 The mechanism: an uprising breakthrough accelerates IRGC factional fragmentation. When IRGC cohesion drops sharply, hardliner influence declines and the FM/Civilian Government faction gains relative power. This shifts Iran's composite output toward ceasefire-seeking behavior, which generates diplomatic signals that increase political ripeness for other actors. Simultaneously, the two-front pressure (external war + internal uprising) makes the IRGC's strategic absorption strategy unsustainable, accelerating Wittman convergence -- the IRGC's p(victory) drops more rapidly, and its estimate converges with the IDF/Pentagon's.
 
-The paradox: the most violent internal event (uprising breakthrough) produces the most peaceful external outcome (ceasefire). This is because the internal violence creates the IRGC factional shift that the external war alone cannot produce -- the IRGC hardliners can maintain psychological resistance to external military pressure indefinitely (martyrdom calculus), but they cannot maintain organizational coherence when their own population is simultaneously revolting.
+The paradox: the most violent internal event (uprising breakthrough) produces an external outcome as peaceful as the baseline (34% ceasefire). This is because the internal violence creates the IRGC factional shift that the external war alone cannot produce -- the IRGC hardliners can maintain psychological resistance to external military pressure indefinitely (martyrdom calculus), but they cannot maintain organizational coherence when their own population is simultaneously revolting. Notably, uprising breakthrough is the only destabilizing variant that does not reduce ceasefire probability below baseline.
 
 #### 2.2.3 Interceptor Crisis: Deterministic Collapse
 
-When Israeli interceptor stocks start at 8% instead of 25%, interceptor failure occurs with 100% probability within 2-6 turns. No other outcome is possible -- the stocks deplete before any other termination condition can activate. Mean duration: 5.5 turns (11 days).
+When Israeli interceptor stocks start at 8% instead of 25%, interceptor failure occurs with 100% probability within 2-6 turns. No other outcome is possible -- the stocks deplete before any other termination condition can activate. Mean duration: 5.4 turns (10.8 days).
 
 This is the simulation's starkest finding: **the interceptor stockpile is the hard constraint on the conflict.** Below a critical threshold, the system enters a deterministic basin of attraction from which no amount of diplomatic activity, factional shifting, or stochastic favorable events can escape.
 
 #### 2.2.4 Strait Trap: Economic Shock Without Strategic Change
 
-Iran's threat to turn the Strait into a "trap" (combat zone affecting all shipping including Chinese/Indian) raises oil prices to ~$100/barrel (+24%) but does not change outcome probabilities. The reason: the economic shock increases pain for all actors roughly symmetrically, preserving relative positions. Oil at $100 hurts Iran (its own exports are disrupted), the US (domestic pressure), and Gulf states (infrastructure damage) -- but the relative balance of pain does not shift enough to open or close ceasefire windows.
+Iran's threat to turn the Strait into a "trap" (combat zone affecting all shipping including Chinese/Indian) raises oil prices to ~$189/barrel (+25%) but does not change outcome probabilities. The reason: the economic shock increases pain for all actors roughly symmetrically, preserving relative positions. Oil at $189 hurts Iran (its own exports are disrupted), the US (domestic pressure), and Gulf states (infrastructure damage) -- but the relative balance of pain does not shift enough to open or close ceasefire windows.
 
 However, this finding should be interpreted cautiously: the current model does not fully capture the second-order effect of China losing its preferential transit status. If Iran attacks Chinese-flagged vessels, China shifts from mediator to adversary -- a phase transition our model represents only through the `china_willing_to_guarantee` variable, not through a qualitative change in China's agent architecture.
 
@@ -178,20 +180,21 @@ Oil price behavior across variants:
 
 | Scenario | Mean Final Price | Peak Price | Price at Ceasefire/End |
 |----------|-----------------|------------|----------------------|
-| Baseline | $80.6 | $93 (T1) | $80-82 |
-| Houthi Activation | $91.5 | $99 | $91-94 |
-| Strait Trap | $99.6 | $102 | $97-100 |
-| Interceptor Crisis | $84.9 | $89 | $82-85 |
+| Baseline | $150.4 | $165 (T1) | $148-152 |
+| Houthi Activation | $169.6 | $185 | $167-172 |
+| Strait Trap | $188.5 | $205 | $185-190 |
+| Interceptor Crisis | $147.3 | $158 | $145-149 |
 
-The oil price consistently declines from its $98 Day-18 level toward $80-82 in the baseline, driven by:
-- Strategic Petroleum Reserve releases (dampening)
-- Russian backfill supply
-- Reflagging gradually restoring strait flow (+2% per turn)
-- Demand destruction at prices above $120
+The oil price settles around $150 in the baseline, driven by:
+- The elevated war risk premium ($35/barrel, up from $15 in earlier calibrations)
+- The increased Hormuz disruption weight (0.35, reflecting that marginal price impact far exceeds volume share)
+- Cargo-based targeting (Iran targets based on cargo destination, not vessel flag, eliminating the reflagging arbitrage that dampened prices in earlier models)
+- Partial offsets from Strategic Petroleum Reserve releases and Russian backfill supply
+- Demand destruction at prices above $200
 
-The $80 floor reflects the war risk premium ($15/barrel) on top of the $63 pre-war base. This premium persists as long as active hostilities continue.
+The $150 level reflects the war risk premium ($35/barrel) on top of the $63 pre-war base, amplified by the higher disruption weight and lowered panic multiplier thresholds. This premium persists as long as active hostilities continue.
 
-The Houthi activation variant is the only one that *reverses* the price decline, pushing prices toward $100 by adding Red Sea disruption on top of Strait disruption. This generates a panic multiplier transition from 2.5x to 4.0x as net disruption crosses the 20% threshold.
+The Houthi activation variant pushes prices toward $170 by adding Red Sea disruption on top of Strait disruption. This generates a panic multiplier transition as net disruption crosses the lowered thresholds.
 
 ---
 
@@ -202,7 +205,7 @@ The Houthi activation variant is the only one that *reverses* the price decline,
 The scenario document identifies five concurrent races. The simulation reveals their relative velocities and interaction effects:
 
 **Race 1: Israel vs. Iranian Missiles vs. Israeli Interceptors**
-*Velocity: Fastest. Resolves in 34 turns median (baseline).*
+*Velocity: Fastest. Resolves in 43.5 turns mean (baseline).*
 This is the fastest-moving race and dominates outcomes. The interceptor stockpile is a hard resource constraint that depletes monotonically until emergency resupply begins arriving at turn 15. Even with resupply, the depletion rate from sustained Iranian launches exceeds the replenishment rate in the majority of runs. This race resolves before the slower political/diplomatic races can produce a ceasefire.
 
 **Race 2: IRGC Endurance vs. Trump's Political Will**
@@ -236,7 +239,7 @@ These three conditions are driven by different stochastic processes with differe
 - Political ripeness is partially stochastic (Trump's mode) and partially deterministic (pain accumulation).
 - Mediator activation is slow-deterministic (pain accumulation at low rates).
 
-The ceasefire probability of 21% reflects the alignment probability of these three independent-ish processes. It is not that ceasefire is "unlikely" in any single dimension -- each condition is individually likely by turn 40 -- but that their joint probability is low because they are driven by weakly correlated processes.
+The ceasefire probability of 34% reflects the alignment probability of these three independent-ish processes. It is not that ceasefire is "unlikely" in any single dimension -- each condition is individually likely by turn 40 -- but that their joint probability is moderate because they are driven by weakly correlated processes.
 
 ### 3.3 Emergent Behaviors
 
@@ -248,7 +251,7 @@ Several behaviors emerge from agent interactions without being explicitly progra
 
 3. **Information environment thinning**: As the war progresses, signal precision degrades (global info quality drops, internet in Iran degrades further, news fatigue reduces media signal quality). This means agents make *worse* decisions over time, not better -- the opposite of Bayesian convergence toward truth. This is a structural feature of protracted conflict that most rational-actor models miss.
 
-4. **Reflagging as structural influence transfer**: The oil market model shows Chinese maritime influence growing monotonically regardless of conflict outcome. Every turn, 2% of Western-flagged traffic re-flags to Chinese registry. By turn 50, Western flow has partially recovered through re-flagging -- but the vessels are now under Chinese registry, representing a permanent transfer of maritime authority. China profits structurally from the conflict's duration regardless of its outcome.
+4. **Cargo-based targeting as structural influence transfer**: The oil market model reflects Iran's targeting based on cargo destination rather than vessel flag -- Iran does not care about flags, it cares about cargo. This means Chinese maritime influence grows monotonically regardless of conflict outcome, as vessels carrying Chinese-destined cargo receive preferential transit. China profits structurally from the conflict's duration regardless of its outcome.
 
 ---
 
@@ -260,7 +263,7 @@ The current model uses relatively simple decision rules for agents other than Tr
 
 ### 4.2 Escalation Calibration
 
-The escalation engine's parameters (Richardson coefficients, action weights, miscalculation multipliers) are calibrated heuristically rather than empirically. The 15% escalation-beyond-model rate may be too high or too low depending on assumptions about the actual reactivity of these specific actors. Historical calibration from comparable conflicts (e.g., the 1980-88 Iran-Iraq War, the 2006 Lebanon War) would improve confidence.
+The escalation engine's parameters (Richardson coefficients, action weights, miscalculation multipliers) are calibrated heuristically rather than empirically. The 1% baseline escalation-beyond-model rate (rising to 18% under Houthi activation) may be too high or too low depending on assumptions about the actual reactivity of these specific actors. Historical calibration from comparable conflicts (e.g., the 1980-88 Iran-Iraq War, the 2006 Lebanon War) would improve confidence.
 
 ### 4.3 Absent Dynamics
 
@@ -273,7 +276,7 @@ The model does not currently capture:
 
 ### 4.4 Russian Variant Insensitivity
 
-The Russian Confirmed variant shows identical results to baseline (21% ceasefire, 57% interceptor failure). This is a model limitation: confirming Russian co-belligerency should trigger NATO dynamics, European energy crisis escalation, and potential Article 5 considerations that would qualitatively change the conflict. The current model treats Russian supply as a scalar variable affecting Iranian drone stocks, not as a geopolitical phase transition.
+The Russian Confirmed variant shows identical results to baseline (34% ceasefire, 65% interceptor failure). This is a model limitation: confirming Russian co-belligerency should trigger NATO dynamics, European energy crisis escalation, and potential Article 5 considerations that would qualitatively change the conflict. The current model treats Russian supply as a scalar variable affecting Iranian drone stocks, not as a geopolitical phase transition.
 
 ---
 
@@ -283,19 +286,19 @@ The simulation results suggest several policy-relevant findings, offered with th
 
 1. **Interceptor resupply is the highest-leverage US intervention.** Accelerating the $825M procurement by even 5 turns (~10 days) shifts 10-15% of outcomes from interceptor failure to other categories. The interceptor race is the binding constraint -- all diplomatic, economic, and political considerations are secondary if Israeli air defenses collapse.
 
-2. **Houthi restraint should be actively maintained.** The Houthi restraint/activation boundary is the highest-variance switch in the system. The difference between Houthi restraint and activation is: ceasefire 21% vs 10%, escalation beyond model 15% vs 31%, oil price $81 vs $92. Whatever the Houthis are receiving in exchange for restraint (Yemen peace deal progress, back-channel commitments), it is producing returns far exceeding its cost.
+2. **Houthi restraint should be actively maintained.** The Houthi restraint/activation boundary is the highest-variance switch in the system. The difference between Houthi restraint and activation is: ceasefire 34% vs 22%, escalation beyond model 1% vs 18%, oil price $150 vs $170. Whatever the Houthis are receiving in exchange for restraint (Yemen peace deal progress, back-channel commitments), it is producing returns far exceeding its cost.
 
-3. **Paradoxically, supporting the Iranian uprising may accelerate ceasefire.** The uprising breakthrough variant produces the highest ceasefire rate (27%) by accelerating IRGC factional fragmentation. This creates the political conditions for ceasefire that military pressure alone cannot generate. The IRGC hardliners are psychologically armored against external military pressure (martyrdom calculus) but organizationally vulnerable to internal institutional stress.
+3. **Paradoxically, supporting the Iranian uprising may accelerate ceasefire.** The uprising breakthrough variant maintains the baseline ceasefire rate (34%) by accelerating IRGC factional fragmentation, making it the only destabilizing variant that does not reduce ceasefire probability. This creates the political conditions for ceasefire that military pressure alone cannot generate. The IRGC hardliners are psychologically armored against external military pressure (martyrdom calculus) but organizationally vulnerable to internal institutional stress.
 
 4. **Trump's unpredictability is a feature for deterrence but a bug for termination.** Other actors cannot predict Trump's mode, which prevents them from timing escalation to his DISTRACTION windows. But the same unpredictability prevents ceasefire coordination -- actors cannot reliably "catch" his DEAL windows. A more predictable US president would either produce more ceasefires (if consistently in DEAL mode) or more escalation (if consistently in ESCALATION mode), but fewer stochastic outcomes.
 
-5. **The $98-100 oil price is a load-bearing equilibrium.** The selective blockade, strategic reserve releases, Russian backfill, and reflagging dynamics combine to keep prices below the panic threshold. Disruption of any single dampener (Houthi activation breaking Red Sea flow, SPR exhaustion, Chinese reflagging slowdown) could trigger nonlinear price jumps. The current price stability is an actively maintained equilibrium, not a natural resting state.
+5. **The $150 oil price is a load-bearing equilibrium.** The selective blockade (cargo-based, not flag-based), strategic reserve releases, and Russian backfill dynamics combine to keep prices below the panic threshold. The elevated war risk premium ($35/barrel) and increased Hormuz disruption weight (0.35, reflecting that marginal price impact far exceeds volume share) produce a higher baseline price than earlier calibrations. Disruption of any single dampener (Houthi activation breaking Red Sea flow, SPR exhaustion) could trigger nonlinear price jumps toward the $189 level seen in the Strait Trap variant. The current price level is an actively maintained equilibrium, not a natural resting state.
 
 ---
 
 ## 6. Conclusion
 
-The Strait of Hormuz crisis simulation reveals a conflict dominated by a race between Israeli interceptor depletion and the slower processes of diplomatic convergence and political ripening. The modal outcome (57%) is interceptor failure -- a materiel constraint resolving before the human decision-making system can produce a ceasefire. The 21% ceasefire probability reflects the difficulty of synchronizing military convergence (rational), political ripeness (threshold-based), and Trump's stochastic behavioral mode into a single moment of alignment.
+The Strait of Hormuz crisis simulation reveals a conflict dominated by a race between Israeli interceptor depletion and the slower processes of diplomatic convergence and political ripening. The modal outcome (65%) is interceptor failure -- a materiel constraint resolving before the human decision-making system can produce a ceasefire. The 34% ceasefire probability reflects the difficulty of synchronizing military convergence (rational), political ripeness (threshold-based), and Trump's stochastic behavioral mode into a single moment of alignment.
 
 The strongest finding is that no single actor controls the outcome. The conflict's trajectory is an emergent property of 18 agents with heterogeneous architectures making decisions on imperfect information through noisy channels. Miscalculation -- the gap between belief and reality -- is not an exception but the engine of escalation dynamics. And the most consequential variables are not the ones that receive the most attention: Houthi restraint (a binary switch held by a non-state actor) and the Iranian domestic uprising (an internal event with external consequences) shape outcomes more than any single military operation.
 
@@ -496,8 +499,8 @@ Stimuli and their effects:
 
 | Stimulus | Condition | Modes Affected |
 |----------|-----------|----------------|
-| High oil price | oil > $110 | DEAL +0.15, RALLY -0.10 |
-| Very high oil | oil > $130 | DEAL +0.30, RALLY -0.15 |
+| High oil price | oil > $160 | DEAL +0.15, RALLY -0.10 |
+| Very high oil | oil > $190 | DEAL +0.30, RALLY -0.15 |
 | US casualties | casualties > 0 | ESCALATION +0.25, DEAL -0.15 |
 | Strike success footage | footage = True | RALLY +0.20, DEAL -0.10 |
 | Iran provocation | provocation = True | ESCALATION +0.15 |
@@ -563,7 +566,7 @@ $$P(t) = P_{\text{base}} + P_{\text{war}} + D_{\text{net}}(t) \cdot \Phi(D_{\tex
 
 where:
 - $P_{\text{base}} = 63$ (pre-war base price)
-- $P_{\text{war}} = 15$ (war risk premium)
+- $P_{\text{war}} = 35$ (war risk premium)
 - $D_{\text{net}}$ is net supply disruption
 - $\Phi$ is the panic multiplier function
 - $P_{\text{ceasefire}}$ is market-implied ceasefire probability
@@ -571,21 +574,21 @@ where:
 
 **Net disruption:**
 
-$$D_{\text{net}} = \max\left(0, \underbrace{(1-F_{\text{strait}}) \cdot 0.20}_{\text{Hormuz}} + \underbrace{(1-F_{\text{red sea}}) \cdot 0.10}_{\text{Suez}} + \underbrace{K \cdot 0.04}_{\text{Kharg}} - \underbrace{S_{\text{SPR}} - S_{\text{Russia}} - S_{\text{demand}}}_{\text{offsets}}\right)$$
+$$D_{\text{net}} = \max\left(0, \underbrace{(1-F_{\text{strait}}) \cdot 0.35}_{\text{Hormuz}} + \underbrace{(1-F_{\text{red sea}}) \cdot 0.10}_{\text{Suez}} + \underbrace{K \cdot 0.04}_{\text{Kharg}} - \underbrace{S_{\text{SPR}} - S_{\text{Russia}} - S_{\text{demand}}}_{\text{offsets}}\right)$$
 
-where $F_{\text{strait}}$ is weighted-average strait flow, $F_{\text{red sea}}$ is Red Sea flow, and $K$ is Kharg damage fraction.
+where $F_{\text{strait}}$ is weighted-average strait flow, $F_{\text{red sea}}$ is Red Sea flow, and $K$ is Kharg damage fraction. The Hormuz disruption weight is 0.35 (increased from 0.20 in earlier calibrations), reflecting that the marginal price impact of Hormuz disruption far exceeds its volume share of global supply.
 
-**Strait flow** under the selective transit regime:
+**Strait flow** under the cargo-based targeting regime:
 
-$$F_{\text{strait}} = \sum_{f \in \text{flags}} w_f \cdot q_f$$
+$$F_{\text{strait}} = \sum_{c \in \text{cargo}} w_c \cdot q_c$$
 
-with weights $w$ reflecting share of normal traffic (Chinese 0.15, Indian 0.10, Russian 0.05, Western 0.40, Gulf 0.30) and $q_f \in [0,1]$ is the flow permitted for flag $f$.
+with weights $w$ reflecting share of normal traffic by cargo destination (Chinese-destined 0.15, Indian-destined 0.10, Russian-destined 0.05, Western-destined 0.40, Gulf-destined 0.30) and $q_c \in [0,1]$ is the flow permitted for cargo destination $c$. Iran targets based on cargo destination rather than vessel flag, eliminating flag-of-convenience arbitrage.
 
 **Panic multiplier** (nonlinear):
 
 $$\Phi(D) = \begin{cases} 1.5 & D < 0.10 \\ 2.5 & 0.10 \le D < 0.20 \\ 4.0 & 0.20 \le D < 0.40 \\ 8.0 & D \ge 0.40 \end{cases}$$
 
-This step function captures the nonlinear relationship between supply disruption and price response. Below 10% disruption, markets absorb shocks with modest premium. Above 40%, panic buying and speculative hoarding produce an 8x multiplier.
+This step function captures the nonlinear relationship between supply disruption and price response. Below 10% disruption, markets absorb shocks with modest premium. Above 40%, panic buying and speculative hoarding produce an 8x multiplier. Panic multiplier thresholds have been lowered relative to earlier calibrations to reflect the sensitivity of oil markets to Hormuz-specific disruptions.
 
 **Price smoothing:** Final price uses exponential smoothing with parameter 0.4:
 
@@ -629,7 +632,7 @@ Outcome distributions are reported as relative frequencies:
 
 $$\hat{p}_k = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}[\text{outcome}_i = k]$$
 
-With $N = 100$, the standard error of the proportion estimate is $\text{SE} = \sqrt{\hat{p}(1-\hat{p})/N} \approx 0.05$ at $\hat{p} = 0.5$ (worst case), yielding 95% confidence intervals of approximately $\pm 10$ percentage points. For the dominant outcome (interceptor failure at 57%), the 95% CI is approximately [47%, 67%].
+With $N = 100$, the standard error of the proportion estimate is $\text{SE} = \sqrt{\hat{p}(1-\hat{p})/N} \approx 0.05$ at $\hat{p} = 0.5$ (worst case), yielding 95% confidence intervals of approximately $\pm 10$ percentage points. For the dominant outcome (interceptor failure at 65%), the 95% CI is approximately [56%, 74%].
 
 Duration statistics use standard nonparametric estimators (sample mean, median, quantiles) with no distributional assumptions.
 

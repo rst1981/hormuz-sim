@@ -8,7 +8,7 @@
 
 We present a comparative analysis of two fundamentally different analytical frameworks applied to the same conflict scenario: a simulated Strait of Hormuz crisis beginning Day 18 of hostilities. **The Wittman-Zartman branch** uses Bayesian belief updating with signal quality as its core mechanic, producing termination endogenously through Wittman military convergence and Zartman political ripeness. **The Fearon/DIA branch** uses a Fearon/DIA ensemble -- Fearon's rationalist bargaining model combined with empirical hazard-rate functions calibrated from historical conflict archetypes. Both branches share identical agents, oil market dynamics, escalation mechanics, and scenario parameters; they differ only in how they determine *when and why the war ends*.
 
-The two approaches produce meaningfully different outcome distributions, duration predictions, and policy implications. Wittman-Zartman predicts a 21% ceasefire rate driven by political alignment; Fearon/DIA predicts 13% ceasefire with 24% regime collapse, driven by material exhaustion. Wittman-Zartman finds that war termination is a coordination problem (enough actors must align); Fearon/DIA finds it is an information problem (private information is never sufficiently revealed for rational bargaining). These differences are not artifacts of calibration -- they reflect genuine theoretical disagreements about the nature of war termination.
+The two approaches produce meaningfully different outcome distributions, duration predictions, and policy implications. Wittman-Zartman predicts a 34% ceasefire rate driven by political alignment; Fearon/DIA predicts 9% ceasefire with 25% regime collapse, driven by material exhaustion. Wittman-Zartman finds that war termination is a coordination problem (enough actors must align); Fearon/DIA finds it is an information problem (private information is never sufficiently revealed for rational bargaining). These differences are not artifacts of calibration -- they reflect genuine theoretical disagreements about the nature of war termination.
 
 This paper examines both approaches, their differences, the arguments for each, and what their disagreements reveal about the underlying conflict.
 
@@ -58,32 +58,32 @@ The key properties:
 
 | Outcome | Wittman-Zartman | Fearon/DIA | Difference |
 |---|---|---|---|
-| **Interceptor failure** | 57% | 53% | -4% (similar) |
-| **Ceasefire** | 21% | 13% | -8% (Wittman-Zartman higher) |
-| **Regime collapse** | 0% | 24% | +24% (Fearon/DIA only) |
-| **Escalation beyond model** | 15% | 9% | -6% (Wittman-Zartman higher) |
-| **Time limit** | 7% | 1% | -6% (Wittman-Zartman higher) |
+| **Interceptor failure** | 65% | 53% | -12% (Wittman-Zartman higher) |
+| **Ceasefire** | 34% | 9% | -25% (Wittman-Zartman higher) |
+| **Regime collapse** | 0% | 25% | +25% (Fearon/DIA only) |
+| **Escalation beyond model** | 1% | 13% | +12% (Fearon/DIA higher) |
+| **Time limit** | 0% | 0% | -- |
 | **Frozen conflict** | 0% | 0% | -- |
 
-**The dominant finding is interceptor failure in both branches** (~53-57%), confirming that Israel's interceptor depletion crisis is the structural driver regardless of analytical framework. This robustness check strengthens confidence in both models -- they agree on the most likely outcome even though they disagree on the mechanisms of other outcomes.
+**The dominant finding is interceptor failure in both branches** (~53-65%), confirming that Israel's interceptor depletion crisis is the structural driver regardless of analytical framework. This robustness check strengthens confidence in both models -- they agree on the most likely outcome even though they disagree on the mechanisms of other outcomes.
 
-**Wittman-Zartman produces more ceasefires** (21% vs. 13%). This reflects its richer termination mechanism: Wittman convergence allows military commanders to recognize stalemate, and Zartman ripeness captures political will erosion. Fearon/DIA's Fearon model cannot produce ceasefires when the bargaining range is zero, so Fearon/DIA's ceasefires come only from the probabilistic duration model firing in a moderate-escalation state.
+**Wittman-Zartman produces more ceasefires** (34% vs. 9%). This reflects its richer termination mechanism: Wittman convergence allows military commanders to recognize stalemate, and Zartman ripeness captures political will erosion. Fearon/DIA's Fearon model cannot produce ceasefires when the bargaining range is zero, so Fearon/DIA's ceasefires come only from the probabilistic duration model firing in a moderate-escalation state.
 
-**Fearon/DIA produces regime collapse** (24% vs. 0%). This is the starkest difference. Wittman-Zartman's Wittman/Zartman mechanism specifically checks for ceasefire conditions -- it does not model regime collapse as a termination pathway (only as a hard threshold at regime_survival <= 0.1, which is rarely reached). Fearon/DIA's softer classification threshold (regime_survival < 0.25 at the moment of duration-model termination) allows regime fragility to manifest as a termination mode.
+**Fearon/DIA produces regime collapse** (25% vs. 0%). This is the starkest difference. Wittman-Zartman's Wittman/Zartman mechanism specifically checks for ceasefire conditions -- it does not model regime collapse as a termination pathway (only as a hard threshold at regime_survival <= 0.1, which is rarely reached). Fearon/DIA's softer classification threshold (regime_survival < 0.25 at the moment of duration-model termination) allows regime fragility to manifest as a termination mode.
 
-**Wittman-Zartman produces more escalation-beyond-model outcomes** (15% vs. 9%) and more time-limit outcomes (7% vs. 1%). This is because Wittman-Zartman's termination conditions are harder to satisfy (requires alignment of multiple actors), so more runs "escape" into extreme escalation or run out of turns. Fearon/DIA's monotonically increasing hazard rate ensures that very long wars are rare.
+**Fearon/DIA produces more escalation-beyond-model outcomes** (13% vs. 1%). Fearon/DIA's information-decay and cost-accumulation mechanics can push scenarios into extreme escalation before the hazard rate terminates them. Wittman-Zartman's higher ceasefire rate draws runs away from escalation outcomes, while its longer mean duration allows interceptor failure to capture most remaining runs. Both branches now show 0% time-limit outcomes, reflecting calibration improvements.
 
 ### 2.2 Duration Characteristics
 
 | Metric | Wittman-Zartman | Fearon/DIA |
 |---|---|---|
-| Mean duration | ~25 turns | 26.5 turns |
-| Median duration | ~20 turns | 20 turns |
-| p10-p90 range | ~10-60 turns | 8-54 turns |
-| Duration std | ~18 turns | ~20 turns |
+| Mean duration | ~43.5 turns | 24.4 turns |
+| Median duration | ~38 turns | 20 turns |
+| p10-p90 range | ~15-80 turns | 8-54 turns |
+| Duration std | ~22 turns | ~20 turns |
 | Shape | Multi-modal | Smooth, right-skewed |
 
-Duration statistics are remarkably similar, primarily because hard thresholds (interceptor depletion) impose the same structural constraints in both branches. The key difference is distributional shape: Wittman-Zartman's duration distribution is multi-modal (peaks at interceptor failure timing and ceasefire alignment), while Fearon/DIA's is smoother (hazard-rate-driven with a single right-skewed mode).
+Wittman-Zartman now produces notably longer wars than Fearon/DIA, with a mean duration of ~43.5 turns compared to Fearon/DIA's 24.4. This divergence reflects the higher coordination burden in Wittman-Zartman's termination conditions: achieving simultaneous military convergence and political ripeness takes longer, allowing more runs to reach interceptor depletion rather than terminating through ceasefire or collapse. The key difference in distributional shape persists: Wittman-Zartman's duration distribution is multi-modal (peaks at interceptor failure timing and ceasefire alignment), while Fearon/DIA's is smoother (hazard-rate-driven with a single right-skewed mode).
 
 ### 2.3 Variant Sensitivity
 
@@ -93,10 +93,10 @@ Both branches agree on variant rankings:
 |---|---|---|---|
 | Houthi activation most destabilizing | Yes (+escalation, +oil) | Yes (+escalation, +oil) | **Yes** |
 | Interceptor crisis deterministic | Yes (100% intcpt fail) | Yes (100% intcpt fail) | **Yes** |
-| Uprising boosts ceasefire (A) / collapse (B) | 27% ceasefire | 41% collapse | *Different mechanism* |
-| Mojtaba reduces regime risk | Slight | 13% vs 24% collapse | **Yes** (stronger in B) |
+| Uprising boosts ceasefire (A) / collapse (B) | 34% ceasefire | 50% collapse | *Different mechanism* |
+| Mojtaba reduces regime risk | Slight | 13% vs 25% collapse | **Yes** (stronger in B) |
 | Russian/Chinese undifferentiated | Yes | Yes | **Yes** (shared limitation) |
-| Strait trap highest oil | Yes ($94) | Yes ($99) | **Yes** |
+| Strait trap highest oil | Yes ($188.5) | Yes ($190.0) | **Yes** |
 
 The most interesting disagreement is on uprising_breakthrough: Wittman-Zartman predicts it increases ceasefire probability (IRGC factional fragmentation enables political alignment), while Fearon/DIA predicts it increases regime collapse (weakened regime triggers duration-model termination, classified as collapse). Both interpretations are plausible -- they represent different theories of what happens when an internal uprising weakens the ruling regime during a war.
 
@@ -106,9 +106,9 @@ Both branches produce similar oil market and escalation dynamics because these a
 
 | Metric | Wittman-Zartman | Fearon/DIA |
 |---|---|---|
-| Baseline oil price | ~$82 | $82 |
-| Houthi oil price | ~$94 | $94 |
-| Strait trap oil price | ~$94 | $99 |
+| Baseline oil price | ~$150.4 | $149.9 |
+| Houthi oil price | ~$169.6 | $169.1 |
+| Strait trap oil price | ~$188.5 | $190.0 |
 | Baseline escalation | ~8.3 | 8.4 |
 
 ---
@@ -135,7 +135,7 @@ Both branches produce similar oil market and escalation dynamics because these a
 
 **3. Commitment problems are explicitly modeled.** Wittman-Zartman has no explicit mechanism for commitment problems -- the concept appears implicitly through political actor behavior, but is never measured or tracked. Fearon/DIA's Fearon model quantifies commitment problem severity (0.57 on [0,1]) and identifies its drivers (absence of guarantors, regime instability). This is directly policy-relevant: increasing China's guarantee credibility could reduce commitment severity and enable negotiated outcomes.
 
-**4. Regime collapse as a distinct termination pathway.** Wittman-Zartman's termination system only actively checks for ceasefire alignment. Regime collapse, interceptor failure, and escalation beyond model are handled by hard thresholds with narrow trigger zones. Fearon/DIA's softer classification allows regime fragility to manifest as a termination mode in the 0.10-0.25 survival range, producing a 24% regime collapse rate that better reflects the scenario's political instability.
+**4. Regime collapse as a distinct termination pathway.** Wittman-Zartman's termination system only actively checks for ceasefire alignment. Regime collapse, interceptor failure, and escalation beyond model are handled by hard thresholds with narrow trigger zones. Fearon/DIA's softer classification allows regime fragility to manifest as a termination mode in the 0.10-0.25 survival range, producing a 25% regime collapse rate that better reflects the scenario's political instability.
 
 **5. Falsifiability.** Fearon/DIA's predictions are more directly falsifiable: the DIA model predicts a specific duration distribution with known parameters. If the actual conflict duration falls outside the predicted 80% confidence interval, the model is wrong in a measurable way. Wittman-Zartman's emergent dynamics are harder to falsify because the outcome depends on stochastic agent interactions with many degrees of freedom.
 
@@ -157,7 +157,7 @@ The Hormuz scenario may be a case where **both theories are necessary but neithe
 
 ### 4.2 The Regime Collapse Question
 
-The starkest empirical disagreement -- 0% vs. 24% regime collapse -- reveals an important gap in Wittman-Zartman's design. Wittman-Zartman models regime collapse only as a hard threshold (survival <= 0.1), treating it as a binary catastrophe. Fearon/DIA's softer classification recognizes that regime *fragility* (survival in the 0.10-0.25 range) can produce collapse-like outcomes: a regime doesn't need to fully disintegrate for the war to end in a way that looks like collapse.
+The starkest empirical disagreement -- 0% vs. 25% regime collapse -- reveals an important gap in Wittman-Zartman's design. Wittman-Zartman models regime collapse only as a hard threshold (survival <= 0.1), treating it as a binary catastrophe. Fearon/DIA's softer classification recognizes that regime *fragility* (survival in the 0.10-0.25 range) can produce collapse-like outcomes: a regime doesn't need to fully disintegrate for the war to end in a way that looks like collapse.
 
 This suggests that a more realistic model would incorporate regime fragility as a *continuous* termination driver, not just a threshold event. The Iranian regime at survival index 0.20 is profoundly unstable, even if it hasn't technically "collapsed" by the hard-threshold definition.
 
@@ -211,16 +211,16 @@ Replace Wittman-Zartman's hard regime collapse threshold with a continuous termi
 
 Two analytical frameworks, applied to the same conflict scenario with identical underlying dynamics, produce meaningfully different predictions about how the Strait of Hormuz crisis ends. Wittman-Zartman's Bayesian belief model finds that war termination is a coordination problem requiring alignment of military convergence, political ripeness, and mediator availability. Fearon/DIA's Fearon/DIA ensemble finds that the information structure of the conflict prevents rational bargaining, making termination driven by material exhaustion and regime collapse rather than negotiated agreement.
 
-Neither framework is clearly superior. Wittman-Zartman is richer in causal mechanism and agent-level detail; Fearon/DIA is stronger in structural diagnosis and empirical calibration. Their disagreements -- particularly on regime collapse (0% vs. 24%) and ceasefire probability (21% vs. 13%) -- are not bugs but features: they reveal genuine theoretical uncertainties about the nature of war termination.
+Neither framework is clearly superior. Wittman-Zartman is richer in causal mechanism and agent-level detail; Fearon/DIA is stronger in structural diagnosis and empirical calibration. Their disagreements -- particularly on regime collapse (0% vs. 25%) and ceasefire probability (34% vs. 9%) -- are not bugs but features: they reveal genuine theoretical uncertainties about the nature of war termination.
 
-The strongest finding, shared by both approaches, is that the Hormuz crisis is dominated by material constraints (interceptor depletion at 53-57%), making the choice of termination model less consequential than the underlying military dynamics. Where the models diverge -- the second most likely outcome -- reflects deeper questions about whether wars end through political agreement or material exhaustion, questions that cannot be resolved by simulation alone.
+The strongest finding, shared by both approaches, is that the Hormuz crisis is dominated by material constraints (interceptor depletion at 53-65%), making the choice of termination model less consequential than the underlying military dynamics. Where the models diverge -- the second most likely outcome -- reflects deeper questions about whether wars end through political agreement or material exhaustion, questions that cannot be resolved by simulation alone.
 
 For policy purposes, the comparative analysis suggests that decision-makers should:
 
 1. **Plan for interceptor failure** as the most likely outcome regardless of diplomatic efforts.
-2. **Take regime collapse seriously** as a termination pathway (Fearon/DIA's 24% estimate) rather than treating it as a tail-risk event (Wittman-Zartman's 0%).
+2. **Take regime collapse seriously** as a termination pathway (Fearon/DIA's 25% estimate) rather than treating it as a tail-risk event (Wittman-Zartman's 0%).
 3. **Invest in commitment mechanisms** (credible guarantors, enforcement institutions) if seeking negotiated outcomes, since the bargaining range problem identified by Fearon/DIA suggests that political will alone is insufficient.
-4. **Expect the conflict to last 40-60 days** (both models converge on this range), with significant variance.
+4. **Expect the conflict to last 25-45 days** (Fearon/DIA at ~24 turns, Wittman-Zartman at ~44 turns), with significant variance and model-dependent duration estimates.
 
 The comparative approach -- running the same scenario through multiple analytical frameworks -- is itself the most robust methodology. Where the models agree, we can be more confident; where they disagree, we know exactly what theoretical assumptions drive the difference.
 

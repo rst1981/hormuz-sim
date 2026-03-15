@@ -6,7 +6,7 @@
 
 ## Abstract
 
-This paper presents results from a conflict duration modeling approach to the Strait of Hormuz crisis scenario, using an ensemble of Fearon's rationalist bargaining framework and DIA-style empirical hazard-rate models. Unlike the companion Bayesian signal quality approach (Wittman-Zartman branch), which derives termination endogenously from agent belief convergence, this framework models conflict duration through information asymmetry decay, bargaining range dynamics, and empirical hazard functions calibrated from historical conflict archetypes. Across 800 Monte Carlo runs (100 per variant), the Fearon/DIA ensemble produces a markedly different outcome distribution: regime collapse emerges as a significant outcome (24% baseline), ceasefire rates are lower (13% vs. 21%), and the model reveals a persistent zero bargaining range -- both sides' optimistic probability-of-victory estimates preclude mutually acceptable deals throughout the conflict. This finding, that the information structure of the Hormuz crisis prevents rational bargaining from opening a peace space, is the central analytical contribution of this branch.
+This paper presents results from a conflict duration modeling approach to the Strait of Hormuz crisis scenario, using an ensemble of Fearon's rationalist bargaining framework and DIA-style empirical hazard-rate models. Unlike the companion Bayesian signal quality approach (Wittman-Zartman branch), which derives termination endogenously from agent belief convergence, this framework models conflict duration through information asymmetry decay, bargaining range dynamics, and empirical hazard functions calibrated from historical conflict archetypes. Across 800 Monte Carlo runs (100 per variant), the Fearon/DIA ensemble produces a markedly different outcome distribution: regime collapse emerges as a significant outcome (25% baseline), ceasefire rates are lower (9% vs. 34%), and the model reveals a persistent zero bargaining range -- both sides' optimistic probability-of-victory estimates preclude mutually acceptable deals throughout the conflict. This finding, that the information structure of the Hormuz crisis prevents rational bargaining from opening a peace space, is the central analytical contribution of this branch.
 
 ---
 
@@ -60,27 +60,27 @@ Across 100 baseline Monte Carlo runs (seed 42, BMA ensemble):
 
 | Outcome | Frequency | Wittman-Zartman branch Comparison |
 |---|---|---|
-| Interceptor failure | 53% | 57% (similar) |
-| Regime collapse | 24% | 0% (dramatic difference) |
-| Ceasefire | 13% | 21% (lower) |
-| Escalation beyond model | 9% | 15% (lower) |
-| Time limit | 1% | 7% (lower) |
+| Interceptor failure | 53% | 65% (similar) |
+| Regime collapse | 25% | 0% (dramatic difference) |
+| Ceasefire | 9% | 34% (lower) |
+| Escalation beyond model | 13% | 1% (lower) |
+| Time limit | 0% | 0% (lower) |
 
 **Key observations:**
 
-1. **Interceptor failure remains dominant** in both branches (~53-57%). This is a hard-threshold outcome driven by the same underlying depletion mechanics, confirming that Israel's interceptor crisis is the structural driver of the conflict's trajectory regardless of termination model.
+1. **Interceptor failure remains dominant** in both branches (~53-65%). This is a hard-threshold outcome driven by the same underlying depletion mechanics, confirming that Israel's interceptor crisis is the structural driver of the conflict's trajectory regardless of termination model.
 
-2. **Regime collapse emerges as a major outcome** (24%) in the Fearon/DIA branch, compared to 0% in Wittman-Zartman branch. This is because the duration model can terminate the war probabilistically at any turn via the hazard rate, and when it fires while regime survival is between 0.10-0.25, the termination is classified as regime collapse. Wittman-Zartman branch's Wittman/Zartman checks never produce this outcome because they specifically check for ceasefire alignment -- regime collapse in Wittman-Zartman branch requires the hard threshold (regime_survival <= 0.1) which is rarely reached.
+2. **Regime collapse emerges as a major outcome** (25%) in the Fearon/DIA branch, compared to 0% in Wittman-Zartman branch. This is because the duration model can terminate the war probabilistically at any turn via the hazard rate, and when it fires while regime survival is between 0.10-0.25, the termination is classified as regime collapse. Wittman-Zartman branch's Wittman/Zartman checks never produce this outcome because they specifically check for ceasefire alignment -- regime collapse in Wittman-Zartman branch requires the hard threshold (regime_survival <= 0.1) which is rarely reached.
 
-3. **Ceasefire rate is lower** (13% vs. 21%). The Fearon model's central finding -- zero bargaining range -- explains this. With both sides' p(victory) estimates exceeding 0.5, there is no bargaining space for a mutually acceptable deal. Ceasefires in the Fearon/DIA model occur only when the probabilistic termination fires in a state where escalation is moderate and no other condition dominates.
+3. **Ceasefire rate is lower** (9% vs. 34%). The Fearon model's central finding -- zero bargaining range -- explains this. With both sides' p(victory) estimates exceeding 0.5, there is no bargaining space for a mutually acceptable deal. Ceasefires in the Fearon/DIA model occur only when the probabilistic termination fires in a state where escalation is moderate and no other condition dominates.
 
-4. **Fewer runs reach time limit** (1% vs. 7%). The DIA hazard rate increases monotonically (Weibull shape > 1), making very long wars unlikely. By turn 80, the cumulative probability of termination exceeds 80%.
+4. **Fewer runs reach time limit** (0% vs. 0%). The DIA hazard rate increases monotonically (Weibull shape > 1), making very long wars unlikely. By turn 80, the cumulative probability of termination exceeds 80%.
 
 ### 2.2 Duration Statistics
 
 | Statistic | Fearon/DIA | Wittman-Zartman branch |
 |---|---|---|
-| Mean duration | 26.5 turns (53 days) | ~25 turns (est.) |
+| Mean duration | 24.4 turns (49 days) | ~25 turns (est.) |
 | Median duration | 20 turns (40 days) | ~20 turns (est.) |
 | p10-p90 range | 8-54 turns | ~10-60 turns (est.) |
 | Std deviation | ~20 turns | ~18 turns (est.) |
@@ -91,28 +91,28 @@ Duration distributions are similar between branches, which is expected: the hard
 
 | Variant | Ceasefire | Collapse | Esc. Beyond | Intcpt. Fail | Duration | Oil |
 |---|---|---|---|---|---|---|
-| baseline | 13% | 24% | 9% | 53% | 26.5 | $82 |
-| houthi_activation | 8% | 22% | 23% | 46% | 26.2 | $94 |
-| interceptor_crisis | 0% | 0% | 0% | 100% | 5.4 | $85 |
-| mojtaba_surfaces | 14% | 13% | 15% | 57% | 25.5 | $83 |
-| russian_confirmed | 13% | 24% | 9% | 53% | 26.5 | $82 |
-| uprising_breakthrough | 10% | 41% | 0% | 49% | 25.0 | $83 |
-| chinese_carrier | 13% | 24% | 9% | 53% | 26.5 | $82 |
-| strait_trap | 13% | 24% | 10% | 52% | 26.0 | $99 |
+| baseline | 9% | 25% | 13% | 53% | 24.4 | $150 |
+| houthi_activation | 5% | 23% | 23% | 48% | 26.1 | $169 |
+| interceptor_crisis | 0% | 0% | 0% | 100% | 5.4 | $147 |
+| mojtaba_surfaces | 10% | 13% | 21% | 55% | 26.8 | $150 |
+| russian_confirmed | 9% | 25% | 13% | 53% | 24.4 | $150 |
+| uprising_breakthrough | 5% | 50% | 1% | 44% | 25.3 | $150 |
+| chinese_carrier | 9% | 25% | 13% | 53% | 24.4 | $150 |
+| strait_trap | 9% | 24% | 14% | 53% | 23.9 | $190 |
 
 **Variant-specific findings:**
 
-**Houthi activation** is the most destabilizing variant in both branches. The Fearon/DIA model shows it nearly triples escalation-beyond-model outcomes (23% vs. 9% baseline) while reducing ceasefire probability to 8%. The DIA model's geographic scope covariate captures the multi-theater expansion effect -- opening a second front in the Red Sea extends the conflict's empirical duration archetype toward the proxy/maritime hybrid pattern.
+**Houthi activation** is the most destabilizing variant in both branches. The Fearon/DIA model shows it nearly doubles escalation-beyond-model outcomes (23% vs. 13% baseline) while reducing ceasefire probability to 5%. The DIA model's geographic scope covariate captures the multi-theater expansion effect -- opening a second front in the Red Sea extends the conflict's empirical duration archetype toward the proxy/maritime hybrid pattern.
 
-**Uprising breakthrough** produces the highest regime collapse rate (41%), nearly double the baseline. This aligns with Fearon's framework: an internal uprising dramatically worsens the Iranian regime's commitment problem (how can you negotiate with a government that might not survive?) while simultaneously reducing IRGC military effectiveness.
+**Uprising breakthrough** produces the highest regime collapse rate (50%), double the baseline. This aligns with Fearon's framework: an internal uprising dramatically worsens the Iranian regime's commitment problem (how can you negotiate with a government that might not survive?) while simultaneously reducing IRGC military effectiveness.
 
-**Mojtaba surfaces** reduces regime collapse (13% vs. 24%) and slightly increases ceasefire probability (14%). The succession resolution reduces commitment problem severity, as a visible successor makes post-war governance commitments more credible. This is a Fearon-specific insight that Wittman-Zartman branch cannot capture through its Wittman/Zartman mechanics.
+**Mojtaba surfaces** reduces regime collapse (13% vs. 25%) and slightly increases ceasefire probability (10%). The succession resolution reduces commitment problem severity, as a visible successor makes post-war governance commitments more credible. This is a Fearon-specific insight that Wittman-Zartman branch cannot capture through its Wittman/Zartman mechanics.
 
 **Interceptor crisis** remains deterministic (100% interceptor failure by turn 5-6) in both branches. The hard threshold preempts any duration model dynamics.
 
 **Russian confirmed, Chinese carrier** produce results identical to baseline. The Fearon/DIA model's covariates (commitment problem via china_willing_to_guarantee) do not differentiate enough. This is a known limitation shared with Wittman-Zartman branch.
 
-**Strait trap** produces the highest oil prices ($99) but similar outcome distribution to baseline. The oil market mechanics are independent of the termination model.
+**Strait trap** produces the highest oil prices ($190) but similar outcome distribution to baseline. The oil market mechanics are independent of the termination model.
 
 ### 2.4 Hazard Rate Dynamics
 
@@ -256,7 +256,7 @@ The dominance of interceptor failure (53%) as the termination mode suggests that
 
 ### 6.3 Regime Fragility Creates a Second Exit
 
-The 24% regime collapse rate suggests that internal Iranian dynamics -- uprising intensity, IRGC factional fragmentation, succession crisis -- provide a termination pathway that is invisible to purely military analysis. Policies that increase internal pressure on the Iranian regime may paradoxically shorten the conflict.
+The 25% regime collapse rate suggests that internal Iranian dynamics -- uprising intensity, IRGC factional fragmentation, succession crisis -- provide a termination pathway that is invisible to purely military analysis. Policies that increase internal pressure on the Iranian regime may paradoxically shorten the conflict.
 
 ### 6.4 Commitment Problem is the Key Barrier
 
