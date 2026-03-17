@@ -1,12 +1,13 @@
-"""OSINT scraper — crawl iranmonitor.org for situation updates."""
+"""OSINT scraper — fetch Iran-related news from multiple sources."""
 
 from __future__ import annotations
 
 import hashlib
-import json
 import logging
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import date
+from email.utils import parsedate_to_datetime
 from typing import Optional
 
 import httpx
@@ -16,8 +17,16 @@ from api.config import settings
 
 logger = logging.getLogger(__name__)
 
-IRANMONITOR_URL = "https://www.iranmonitor.org"
 REQUEST_TIMEOUT = 30.0
+
+# Google News RSS feeds for Iran crisis topics (no API key needed)
+GOOGLE_NEWS_FEEDS = [
+    "https://news.google.com/rss/search?q=Iran+Israel+conflict&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=Strait+of+Hormuz&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=Iran+military+IRGC&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=Iran+sanctions+oil+price&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=Houthi+Red+Sea&hl=en-US&gl=US&ceid=US:en",
+]
 
 
 @dataclass
@@ -26,8 +35,8 @@ class ScrapedEvent:
     url: str
     title: str
     body: str
-    category: str  # protest, sanctions, diplomacy, conflict, economy, politics, etc.
-    event_date: Optional[str]  # YYYY-MM-DD or None
+    category: str
+    event_date: Optional[str] = None
     content_hash: str = ""
 
     def __post_init__(self) -> None:
@@ -36,8 +45,8 @@ class ScrapedEvent:
             self.content_hash = hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
-async def _fetch_page(url: str) -> Optional[str]:
-    """Fetch a page, return HTML or None on failure."""
+async def _fetch(url: str) -> Optional[str]:
+    """Fetch a URL, return text or None on failure."""
     try:
         async with httpx.AsyncClient(
             timeout=REQUEST_TIMEOUT,
@@ -52,101 +61,72 @@ async def _fetch_page(url: str) -> Optional[str]:
         return None
 
 
-def _extract_next_data(html: str) -> Optional[dict]:
-    """Try to extract __NEXT_DATA__ JSON from a Next.js page."""
-    soup = BeautifulSoup(html, "html.parser")
-    script = soup.find("script", {"id": "__NEXT_DATA__"})
-    if script and script.string:
-        try:
-            return json.loads(script.string)
-        except json.JSONDecodeError:
-            pass
-    return None
+def _categorize(title: str) -> str:
+    """Simple keyword-based categorization."""
+    t = title.lower()
+    if any(w in t for w in ["missile", "strike", "attack", "military", "irgc", "drone", "intercept"]):
+        return "conflict"
+    if any(w in t for w in ["oil", "crude", "brent", "opec", "barrel", "energy"]):
+        return "economy"
+    if any(w in t for w in ["sanction", "treasury", "embargo"]):
+        return "sanctions"
+    if any(w in t for w in ["diplomat", "talks", "negotiate", "ceasefire", "peace"]):
+        return "diplomacy"
+    if any(w in t for w in ["houthi", "red sea", "shipping", "strait", "hormuz"]):
+        return "maritime"
+    if any(w in t for w in ["nuclear", "enrichment", "iaea", "uranium"]):
+        return "nuclear"
+    if any(w in t for w in ["protest", "uprising", "unrest"]):
+        return "protest"
+    if any(w in t for w in ["trump", "biden", "congress", "white house"]):
+        return "politics"
+    return "general"
 
 
-def _parse_events_from_next_data(data: dict) -> list[ScrapedEvent]:
-    """Extract events from __NEXT_DATA__ props structure."""
+def _parse_rss(xml_text: str) -> list[ScrapedEvent]:
+    """Parse Google News RSS XML into ScrapedEvent list."""
     events: list[ScrapedEvent] = []
-    today = date.today().isoformat()
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError:
+        return events
 
-    # Navigate the props tree — structure varies, so we search broadly
-    def _search(obj: any, depth: int = 0) -> None:
-        if depth > 10:
-            return
-        if isinstance(obj, dict):
-            # Look for event-like objects with title/body/category keys
-            if "title" in obj and ("body" in obj or "description" in obj or "content" in obj):
-                title = obj.get("title", "")
-                body = obj.get("body") or obj.get("description") or obj.get("content") or ""
-                category = obj.get("category") or obj.get("type") or "general"
-                event_date = obj.get("date") or obj.get("publishedAt") or obj.get("created_at")
+    for item in root.iter("item"):
+        title_el = item.find("title")
+        link_el = item.find("link")
+        desc_el = item.find("description")
+        pubdate_el = item.find("pubDate")
+        source_el = item.find("source")
 
-                # Normalize date
-                if event_date and len(event_date) >= 10:
-                    event_date = event_date[:10]
-                else:
-                    event_date = today
-
-                if title and len(title) > 5:
-                    events.append(ScrapedEvent(
-                        source="iranmonitor.org",
-                        url=IRANMONITOR_URL,
-                        title=str(title).strip(),
-                        body=str(body).strip()[:2000],
-                        category=str(category).lower(),
-                        event_date=event_date,
-                    ))
-            else:
-                for v in obj.values():
-                    _search(v, depth + 1)
-        elif isinstance(obj, list):
-            for item in obj:
-                _search(item, depth + 1)
-
-    _search(data)
-    return events
-
-
-def _parse_events_from_html(html: str) -> list[ScrapedEvent]:
-    """Fallback: parse events from raw HTML structure."""
-    soup = BeautifulSoup(html, "html.parser")
-    events: list[ScrapedEvent] = []
-    today = date.today().isoformat()
-
-    # Look for article-like elements
-    for article in soup.find_all(["article", "div"], class_=lambda c: c and any(
-        kw in (c if isinstance(c, str) else " ".join(c)).lower()
-        for kw in ["event", "briefing", "news", "update", "timeline", "card", "item"]
-    )):
-        # Extract title
-        title_el = article.find(["h1", "h2", "h3", "h4", "a"])
-        if not title_el:
-            continue
-        title = title_el.get_text(strip=True)
-        if len(title) < 5:
+        title = title_el.text.strip() if title_el is not None and title_el.text else ""
+        if not title or len(title) < 10:
             continue
 
-        # Extract body
-        body_el = article.find(["p", "div"], class_=lambda c: c and any(
-            kw in (c if isinstance(c, str) else " ".join(c)).lower()
-            for kw in ["body", "content", "description", "text", "summary"]
-        ))
-        body = body_el.get_text(strip=True) if body_el else ""
+        link = link_el.text.strip() if link_el is not None and link_el.text else ""
+        source_name = source_el.text.strip() if source_el is not None and source_el.text else "Google News"
 
-        # Extract category from tags/badges
-        cat_el = article.find(class_=lambda c: c and any(
-            kw in (c if isinstance(c, str) else " ".join(c)).lower()
-            for kw in ["category", "tag", "badge", "label"]
-        ))
-        category = cat_el.get_text(strip=True).lower() if cat_el else "general"
+        # Parse description (often contains HTML snippet)
+        body = ""
+        if desc_el is not None and desc_el.text:
+            soup = BeautifulSoup(desc_el.text, "html.parser")
+            body = soup.get_text(strip=True)[:2000]
+
+        # Parse date
+        event_date = date.today().isoformat()
+        if pubdate_el is not None and pubdate_el.text:
+            try:
+                dt = parsedate_to_datetime(pubdate_el.text)
+                event_date = dt.strftime("%Y-%m-%d")
+            except Exception:
+                pass
 
         events.append(ScrapedEvent(
-            source="iranmonitor.org",
-            url=IRANMONITOR_URL,
+            source=source_name,
+            url=link,
             title=title[:300],
-            body=body[:2000],
-            category=category,
-            event_date=today,
+            body=body,
+            category=_categorize(title),
+            event_date=event_date,
         ))
 
     return events
@@ -155,34 +135,27 @@ def _parse_events_from_html(html: str) -> list[ScrapedEvent]:
 async def scrape_iranmonitor(
     seen_hashes: set[str] | None = None,
 ) -> list[ScrapedEvent]:
-    """Scrape iranmonitor.org for new events. Returns deduplicated events."""
+    """Scrape multiple news sources for Iran-related events. Returns deduplicated events."""
     seen = seen_hashes or set()
     all_events: list[ScrapedEvent] = []
+    seen_in_batch: set[str] = set()
 
-    html = await _fetch_page(IRANMONITOR_URL)
-    if not html:
-        logger.warning("Could not fetch iranmonitor.org")
-        return []
+    # Fetch all Google News RSS feeds
+    for feed_url in GOOGLE_NEWS_FEEDS:
+        xml_text = await _fetch(feed_url)
+        if not xml_text:
+            continue
 
-    # Try __NEXT_DATA__ first (more structured)
-    next_data = _extract_next_data(html)
-    if next_data:
-        events = _parse_events_from_next_data(next_data)
-        logger.info(f"Extracted {len(events)} events from __NEXT_DATA__")
-        all_events.extend(events)
-
-    # Fall back to / supplement with HTML parsing
-    if len(all_events) < 3:
-        html_events = _parse_events_from_html(html)
-        logger.info(f"Extracted {len(html_events)} events from HTML")
-        # Add only events not already found via __NEXT_DATA__
-        existing_hashes = {e.content_hash for e in all_events}
-        for e in html_events:
-            if e.content_hash not in existing_hashes:
+        events = _parse_rss(xml_text)
+        for e in events:
+            if e.content_hash not in seen_in_batch:
+                seen_in_batch.add(e.content_hash)
                 all_events.append(e)
+
+    logger.info(f"Scraped {len(all_events)} total events from {len(GOOGLE_NEWS_FEEDS)} feeds")
 
     # Deduplicate against previously seen events
     new_events = [e for e in all_events if e.content_hash not in seen]
-    logger.info(f"After dedup: {len(new_events)} new events (from {len(all_events)} total)")
+    logger.info(f"After dedup: {len(new_events)} new events")
 
     return new_events
