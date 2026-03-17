@@ -8,7 +8,7 @@ import { NarrativeFeed } from '../components/NarrativeFeed';
 import { ResetButton } from '../components/ResetButton';
 
 export function DashboardPage() {
-  const { simId, simState, turns, createSim, runSim, loading, reset } = useSimulationStore();
+  const { simId, simState, turns, createSim, runSim, loading, error, reset } = useSimulationStore();
   const { availableDates, snapshots, fetchDates, fetchSnapshots } = useUpdateStore();
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedSnapshot, setSelectedSnapshot] = useState('');
@@ -27,15 +27,27 @@ export function DashboardPage() {
 
         {/* Baseline selector */}
         <div className="w-96 space-y-3">
+          {/* Error display */}
+          {error && (
+            <div className="text-xs text-[#f85149] bg-[#f8514910] border border-[#f8514930] rounded p-2">
+              {error}
+            </div>
+          )}
+
           {/* Original baseline */}
-          <button
-            onClick={() => createSim()}
-            disabled={loading}
-            className="w-full bg-bg-card border border-border rounded-lg p-4 text-left hover:border-text-accent transition-colors disabled:opacity-50"
-          >
-            <div className="text-sm font-semibold text-text-primary">Load Original Baseline (17 Mar)</div>
-            <div className="text-[10px] text-text-muted mt-1">Day 18 parameters — no situation updates applied</div>
-          </button>
+          <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
+            <div>
+              <div className="text-sm font-semibold text-text-primary">Original Baseline (17 Mar)</div>
+              <div className="text-[10px] text-text-muted mt-1">Day 18 parameters — no situation updates applied</div>
+            </div>
+            <button
+              onClick={() => createSim()}
+              disabled={loading}
+              className="w-full px-4 py-2.5 bg-text-accent text-bg-primary rounded font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {loading ? 'Creating Simulation...' : 'Create Simulation'}
+            </button>
+          </div>
 
           {/* Situation update baselines */}
           <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
