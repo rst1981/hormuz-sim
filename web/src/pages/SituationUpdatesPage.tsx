@@ -218,6 +218,15 @@ export function SituationUpdatesPage() {
   const [snapshotName, setSnapshotName] = useState('');
   const [saving, setSaving] = useState(false);
   const [showImpact, setShowImpact] = useState(false);
+  const [expandedCats, setExpandedCats] = useState<Set<string>>(new Set());
+
+  const toggleCat = (cat: string) => {
+    setExpandedCats(prev => {
+      const next = new Set(prev);
+      if (next.has(cat)) next.delete(cat); else next.add(cat);
+      return next;
+    });
+  };
 
   useEffect(() => {
     fetchUpdates();
@@ -318,43 +327,50 @@ export function SituationUpdatesPage() {
         <span className="text-xs text-text-muted self-center ml-2">{sorted.length} updates</span>
       </div>
 
-      {/* Updates + Baseline panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 space-y-4">
-          {sorted.length === 0 && !loading && (
-            <div className="text-sm text-text-muted text-center py-8">
-              No updates yet. Click "Scrape OSINT / News" to fetch the latest intelligence.
-            </div>
-          )}
-          {grouped.map(({ cat, meta, items }) => (
-            <div key={cat} className="space-y-2">
-              <div className="flex items-center gap-2 sticky top-0 bg-bg-primary py-1 z-10">
-                <span style={{ color: meta.color }}>{meta.icon}</span>
-                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: meta.color }}>
-                  {meta.label}
-                </span>
-                <span className="text-[10px] text-text-muted">({items.length})</span>
-              </div>
-              {items.map(update => (
-                <UpdateCard
-                  key={update.id}
-                  update={update}
-                  onApprove={() => approve(update.id)}
-                  onReject={() => reject(update.id)}
-                />
-              ))}
-            </div>
-          ))}
-        </div>
+      {/* Baseline panel */}
+      <BaselinePanel
+        baseline={baseline}
+        projected={projectedBaseline}
+        showImpact={showImpact}
+        onToggleImpact={() => setShowImpact(!showImpact)}
+      />
 
-        <div>
-          <BaselinePanel
-            baseline={baseline}
-            projected={projectedBaseline}
-            showImpact={showImpact}
-            onToggleImpact={() => setShowImpact(!showImpact)}
-          />
+      {/* Updates — one column per category */}
+      {sorted.length === 0 && !loading && (
+        <div className="text-sm text-text-muted text-center py-8">
+          No updates yet. Click "Scrape OSINT / News" to fetch the latest intelligence.
         </div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+        {grouped.map(({ cat, meta, items }) => (
+          <div key={cat} className="bg-bg-card border border-border rounded-lg overflow-hidden">
+            <button
+              onClick={() => toggleCat(cat)}
+              className="w-full flex items-center gap-2 px-3 py-2 hover:bg-bg-hover transition-colors"
+            >
+              <span style={{ color: meta.color }}>{meta.icon}</span>
+              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: meta.color }}>
+                {meta.label}
+              </span>
+              <span className="text-[10px] text-text-muted">({items.length})</span>
+              <span className="ml-auto text-[10px] text-text-muted">
+                {expandedCats.has(cat) ? '▼' : '▶'}
+              </span>
+            </button>
+            {expandedCats.has(cat) && (
+              <div className="px-3 pb-3 space-y-2 max-h-96 overflow-y-auto">
+                {items.map(update => (
+                  <UpdateCard
+                    key={update.id}
+                    update={update}
+                    onApprove={() => approve(update.id)}
+                    onReject={() => reject(update.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
