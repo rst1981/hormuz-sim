@@ -62,23 +62,24 @@ MAPPING GUIDE — use these connections aggressively:
 - Missile/drone strikes on Iran → iran_missile_stocks or iran_drone_stocks (delta -0.02 to -0.08)
 - Israeli interceptions of missiles → israel_interceptor_stocks (delta -0.02 to -0.05)
 - US munitions usage/resupply → us_pgm_stocks (delta -0.03 to -0.05, or + for resupply)
-- Any military escalation → escalation.base_level (delta +0.1 to +0.5)
+- Any military escalation → escalation.level (delta +0.1 to +0.5)
 - IRGC casualties/leadership kills → irgc_cohesion (delta -0.03 to -0.08), irgc_casualties_cumulative (delta +0.01 to +0.05)
 - Attacks on Fordow/nuclear sites → fordow_destroyed (delta +0.1 to +0.3)
 
 **Maritime/Strait events** (shipping, Hormuz, Red Sea, Houthis):
 - Houthi attacks on shipping → houthi_activation_prob (delta +0.05 to +0.15)
-- Strait of Hormuz threats/mining → escalation.base_level (delta +0.2 to +0.5)
+- Strait of Hormuz threats/mining → escalation.level (delta +0.2 to +0.5)
 - Shipping disruptions → oil_market.war_risk_premium (delta +1 to +5)
 
 **Oil & Economy** (prices, sanctions, infrastructure):
 - Oil price mentions → oil_market.price (absolute value in $/barrel)
-- Oil infrastructure damage (Kharg, pipelines) → kharg_terminal_damaged (delta +0.1 to +0.3)
+- Oil infrastructure damage (Kharg, pipelines) → kharg_terminal_damaged (delta +0.1 to +0.3), oil_market.kharg_damaged (delta +0.05 to +0.2)
 - New sanctions → oil_market.war_risk_premium (delta +1 to +3)
 - Infrastructure attacks (airports, ports) → oil_market.war_risk_premium (delta +0.5 to +2)
+- Ceasefire talks or peace signals → oil_market.ceasefire_probability (delta +0.03 to +0.10)
 
 **Diplomacy & Politics**:
-- Peace talks, ceasefire signals → escalation.ceasefire_weight (delta +0.05 to +0.15)
+- Peace talks, ceasefire signals → oil_market.ceasefire_probability (delta +0.05 to +0.15), escalation.level (delta -0.1 to -0.3)
 - US political support for Israel → us_political_will (delta +0.02 to +0.05)
 - US political opposition/fatigue → us_political_will (delta -0.02 to -0.05)
 - Chinese/Russian involvement → china_willing_to_guarantee or russia_supplying_iran (delta +0.03 to +0.10)
@@ -89,7 +90,7 @@ MAPPING GUIDE — use these connections aggressively:
 - IAEA inspections/restrictions → iran_nuclear_progress (delta -0.02 to +0.02)
 
 **Regional instability**:
-- Attacks on Arab neighbors → escalation.base_level (delta +0.1 to +0.3)
+- Attacks on Arab neighbors → escalation.level (delta +0.1 to +0.3)
 - Protests in Iran → uprising_intensity (delta +0.02 to +0.08)
 - Regime stability threats → regime_survival_index (delta -0.02 to -0.08)
 
@@ -110,7 +111,7 @@ Example:
   [
     {"parameter": "iran_drone_stocks", "category": "ground_truth", "delta": -0.05, "reasoning": "Israeli airstrike destroyed drone depot near Isfahan"},
     {"parameter": "israel_interceptor_stocks", "category": "ground_truth", "delta": -0.03, "reasoning": "Iron Dome intercepted 30+ drones, depleting interceptor reserves"},
-    {"parameter": "base_level", "category": "escalation", "delta": 0.3, "reasoning": "Major escalation: direct strike on Iranian military infrastructure"}
+    {"parameter": "level", "category": "escalation", "delta": 0.3, "reasoning": "Major escalation: direct strike on Iranian military infrastructure"}
   ],
   [
     {"parameter": "price", "category": "oil_market", "absolute": 98.50, "reasoning": "Brent crude surged to $98.50 on escalation fears"},
