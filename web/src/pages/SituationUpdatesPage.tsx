@@ -337,37 +337,74 @@ export function SituationUpdatesPage() {
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-        {grouped.map(({ cat, meta, items }) => (
-          <div key={cat} className="bg-bg-card border border-border rounded-lg overflow-hidden">
-            <button
-              onClick={() => toggleCat(cat)}
-              className="w-full flex items-center gap-2 px-3 py-2 hover:bg-bg-hover transition-colors"
-            >
-              <span style={{ color: meta.color }}>{meta.icon}</span>
-              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: meta.color }}>
-                {meta.label}
-              </span>
-              <span className="text-[10px] text-text-muted">({items.length})</span>
-              <span className="ml-auto text-[10px] text-text-muted">
-                {expandedCats.has(cat) ? '▼' : '▶'}
-              </span>
-            </button>
-            {expandedCats.has(cat) && (
-              <div className="px-2 pb-2 space-y-2 max-h-[28rem] overflow-y-auto">
-                {items.map(update => (
-                  <UpdateCard
-                    key={update.id}
-                    update={update}
-                    onApprove={() => approve(update.id)}
-                    onReject={() => reject(update.id)}
-                    onTestImpact={() => toggleTestImpact(update.id)}
-                    isTested={testedIds.has(update.id)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+        {grouped.map(({ cat, meta, items }) => {
+          const pendingItems = items.filter(u => u.status === 'pending');
+          const pendingIds = pendingItems.map(u => u.id);
+          const allTested = pendingItems.length > 0 && pendingItems.every(u => testedIds.has(u.id));
+
+          return (
+            <div key={cat} className="bg-bg-card border border-border rounded-lg overflow-hidden">
+              {/* Header row: icon + label + count + expand toggle */}
+              <button
+                onClick={() => toggleCat(cat)}
+                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-bg-hover transition-colors"
+              >
+                <span style={{ color: meta.color }}>{meta.icon}</span>
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: meta.color }}>
+                  {meta.label}
+                </span>
+                <span className="text-[10px] text-text-muted">({items.length})</span>
+                <span className="ml-auto text-[10px] text-text-muted">
+                  {expandedCats.has(cat) ? '▼' : '▶'}
+                </span>
+              </button>
+
+              {/* Bulk actions for pending items in this group */}
+              {expandedCats.has(cat) && pendingItems.length > 0 && (
+                <div className="flex items-center gap-1 px-3 pb-1.5 border-b border-border">
+                  <span className="text-[10px] text-text-muted mr-auto">{pendingItems.length} pending</span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); pendingIds.forEach(id => { if (!testedIds.has(id)) toggleTestImpact(id); }); }}
+                    className={`px-2 py-0.5 text-[10px] rounded border transition-colors ${
+                      allTested
+                        ? 'bg-[#58a6ff15] border-[#58a6ff] text-[#58a6ff]'
+                        : 'bg-bg-hover border-border text-text-muted hover:text-[#58a6ff]'
+                    }`}
+                  >
+                    Test All
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); pendingIds.forEach(id => approve(id)); }}
+                    className="px-2 py-0.5 text-[10px] rounded bg-bg-hover border border-border text-[#3fb950] hover:bg-[#3fb95015] transition-colors"
+                  >
+                    Approve All
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); pendingIds.forEach(id => reject(id)); }}
+                    className="px-2 py-0.5 text-[10px] rounded bg-bg-hover border border-border text-[#f85149] hover:bg-[#f8514915] transition-colors"
+                  >
+                    Reject All
+                  </button>
+                </div>
+              )}
+
+              {expandedCats.has(cat) && (
+                <div className="px-2 pb-2 space-y-2 max-h-[28rem] overflow-y-auto">
+                  {items.map(update => (
+                    <UpdateCard
+                      key={update.id}
+                      update={update}
+                      onApprove={() => approve(update.id)}
+                      onReject={() => reject(update.id)}
+                      onTestImpact={() => toggleTestImpact(update.id)}
+                      isTested={testedIds.has(update.id)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Dual Baseline: Current vs Dynamic */}
