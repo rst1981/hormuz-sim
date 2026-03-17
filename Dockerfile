@@ -9,6 +9,7 @@ COPY src/ ./src/
 COPY src_fearon_dia/ ./src_fearon_dia/
 COPY api/ ./api/
 
-EXPOSE 8000
+ENV PORT=8000
+EXPOSE ${PORT}
 
-CMD ["python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD python -m uvicorn api.main:app --host 0.0.0.0 --port ${PORT}
