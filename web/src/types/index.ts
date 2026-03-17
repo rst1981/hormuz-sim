@@ -153,6 +153,7 @@ export interface SituationUpdate {
   source_url: string | null;
   raw_text: string;
   summary: string;
+  category: string;
   parameter_changes: ParameterChange[];
   status: 'pending' | 'applied' | 'rejected';
   reviewed_at: string | null;

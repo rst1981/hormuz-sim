@@ -34,6 +34,7 @@ class SituationUpdate:
     summary: str
     parameter_changes: list[ParameterChange]
     status: str = "pending"  # "pending" | "applied" | "rejected"
+    category: str = "general"  # conflict | economy | sanctions | diplomacy | maritime | nuclear | protest | politics | general
     source_url: Optional[str] = None
     reviewed_at: Optional[str] = None
     created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())

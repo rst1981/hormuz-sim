@@ -32,6 +32,7 @@ class UpdateResponse(BaseModel):
     source_url: Optional[str]
     raw_text: str
     summary: str
+    category: str
     parameter_changes: list[dict[str, Any]]
     status: str
     reviewed_at: Optional[str]
@@ -117,8 +118,9 @@ async def trigger_crawl():
                 date=event.event_date or date.today().isoformat(),
                 source=event.source,
                 source_url=event.url,
-                raw_text=f"{event.title}\n\n{event.body}",
+                raw_text=event.title,
                 summary=event.title,
+                category=event.category,
                 parameter_changes=[
                     ParameterChange(
                         parameter=c["parameter"],

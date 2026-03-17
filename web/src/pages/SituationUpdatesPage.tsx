@@ -8,14 +8,27 @@ const STATUS_COLORS: Record<string, string> = {
   rejected: '#f85149',
 };
 
+const CATEGORY_META: Record<string, { label: string; color: string; icon: string }> = {
+  conflict:   { label: 'Conflict & Military',  color: '#f85149', icon: '⚔' },
+  maritime:   { label: 'Maritime & Strait',     color: '#58a6ff', icon: '⚓' },
+  economy:    { label: 'Oil & Economy',         color: '#d29922', icon: '🛢' },
+  sanctions:  { label: 'Sanctions',             color: '#bc8cff', icon: '🚫' },
+  diplomacy:  { label: 'Diplomacy',             color: '#3fb950', icon: '🤝' },
+  nuclear:    { label: 'Nuclear',               color: '#f0883e', icon: '☢' },
+  politics:   { label: 'US/Intl Politics',      color: '#8b949e', icon: '🏛' },
+  protest:    { label: 'Protest & Unrest',       color: '#da3633', icon: '✊' },
+  general:    { label: 'General',               color: '#8b949e', icon: '📰' },
+};
+
+const CATEGORY_ORDER = ['conflict', 'maritime', 'economy', 'sanctions', 'nuclear', 'diplomacy', 'politics', 'protest', 'general'];
+
 const DATA_SOURCES = [
+  'Google News RSS',
   'iranmonitor.org',
-  'News API',
   'X / Twitter',
   'Polymarket',
   'AirNav Radar',
   'MarineTraffic',
-  'GeoConfirmed',
 ];
 
 function StatusBadge({ status }: { status: string }) {
@@ -64,6 +77,9 @@ function UpdateCard({
           <span className="text-xs font-mono text-text-muted">{update.date}</span>
           <span className="text-xs text-text-muted">{update.source}</span>
           <StatusBadge status={update.status} />
+          {update.source_url && (
+            <a href={update.source_url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-text-accent hover:underline">↗</a>
+          )}
         </div>
         {update.status === 'pending' && (
           <div className="flex gap-1.5">
@@ -212,6 +228,15 @@ export function SituationUpdatesPage() {
   const filtered = filter ? updates.filter(u => u.status === filter) : updates;
   const sorted = [...filtered].reverse();
 
+  // Group by category
+  const grouped = CATEGORY_ORDER
+    .map(cat => ({
+      cat,
+      meta: CATEGORY_META[cat] || CATEGORY_META.general,
+      items: sorted.filter(u => (u.category || 'general') === cat),
+    }))
+    .filter(g => g.items.length > 0);
+
   const handleSaveSnapshot = async () => {
     if (!snapshotName.trim()) return;
     setSaving(true);
@@ -295,19 +320,30 @@ export function SituationUpdatesPage() {
 
       {/* Updates + Baseline panel */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 space-y-3">
+        <div className="lg:col-span-2 space-y-4">
           {sorted.length === 0 && !loading && (
             <div className="text-sm text-text-muted text-center py-8">
               No updates yet. Click "Scrape OSINT / News" to fetch the latest intelligence.
             </div>
           )}
-          {sorted.map(update => (
-            <UpdateCard
-              key={update.id}
-              update={update}
-              onApprove={() => approve(update.id)}
-              onReject={() => reject(update.id)}
-            />
+          {grouped.map(({ cat, meta, items }) => (
+            <div key={cat} className="space-y-2">
+              <div className="flex items-center gap-2 sticky top-0 bg-bg-primary py-1 z-10">
+                <span style={{ color: meta.color }}>{meta.icon}</span>
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: meta.color }}>
+                  {meta.label}
+                </span>
+                <span className="text-[10px] text-text-muted">({items.length})</span>
+              </div>
+              {items.map(update => (
+                <UpdateCard
+                  key={update.id}
+                  update={update}
+                  onApprove={() => approve(update.id)}
+                  onReject={() => reject(update.id)}
+                />
+              ))}
+            </div>
           ))}
         </div>
 
