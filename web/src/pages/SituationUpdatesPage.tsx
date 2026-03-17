@@ -226,7 +226,7 @@ export function SituationUpdatesPage() {
   const {
     updates, baseline, testImpactBaseline, testedIds, crawling, loading, error,
     fetchUpdates, fetchBaseline, fetchProjectedBaseline, triggerCrawl,
-    approve, reject, toggleTestImpact, clearTestImpact,
+    approve, reject, toggleTestImpact, testImpactMany, approveMany, rejectMany, clearTestImpact,
     saveSnapshot, fetchSnapshots,
   } = useUpdateStore();
   const [filter, setFilter] = useState<string>('');
@@ -364,7 +364,7 @@ export function SituationUpdatesPage() {
                 <div className="flex items-center gap-1 px-3 pb-1.5 border-b border-border">
                   <span className="text-[10px] text-text-muted mr-auto">{pendingItems.length} pending</span>
                   <button
-                    onClick={(e) => { e.stopPropagation(); pendingIds.forEach(id => { if (!testedIds.has(id)) toggleTestImpact(id); }); }}
+                    onClick={(e) => { e.stopPropagation(); testImpactMany(pendingIds); }}
                     className={`px-2 py-0.5 text-[10px] rounded border transition-colors ${
                       allTested
                         ? 'bg-[#58a6ff15] border-[#58a6ff] text-[#58a6ff]'
@@ -374,13 +374,13 @@ export function SituationUpdatesPage() {
                     Test All
                   </button>
                   <button
-                    onClick={(e) => { e.stopPropagation(); pendingIds.forEach(id => approve(id)); }}
+                    onClick={(e) => { e.stopPropagation(); approveMany(pendingIds); }}
                     className="px-2 py-0.5 text-[10px] rounded bg-bg-hover border border-border text-[#3fb950] hover:bg-[#3fb95015] transition-colors"
                   >
                     Approve All
                   </button>
                   <button
-                    onClick={(e) => { e.stopPropagation(); pendingIds.forEach(id => reject(id)); }}
+                    onClick={(e) => { e.stopPropagation(); rejectMany(pendingIds); }}
                     className="px-2 py-0.5 text-[10px] rounded bg-bg-hover border border-border text-[#f85149] hover:bg-[#f8514915] transition-colors"
                   >
                     Reject All

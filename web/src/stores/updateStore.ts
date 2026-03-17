@@ -25,6 +25,9 @@ interface UpdateStore {
   approve: (id: string) => Promise<void>;
   reject: (id: string) => Promise<void>;
   toggleTestImpact: (id: string) => Promise<void>;
+  testImpactMany: (ids: string[]) => Promise<void>;
+  approveMany: (ids: string[]) => Promise<void>;
+  rejectMany: (ids: string[]) => Promise<void>;
   clearTestImpact: () => void;
 }
 
@@ -163,6 +166,64 @@ export const useUpdateStore = create<UpdateStore>((set, get) => ({
     } else {
       testedIds.add(id);
     }
+    set({ testedIds });
+
+    if (testedIds.size === 0) {
+      set({ testImpactBaseline: null });
+      return;
+    }
+
+    try {
+      const testImpactBaseline = await api.getTestImpactBaseline([...testedIds]);
+      set({ testImpactBaseline });
+    } catch (e) {
+      set({ error: (e as Error).message });
+    }
+  },
+
+  approveMany: async (ids) => {
+    try {
+      for (const id of ids) await api.approveUpdate(id);
+      const updates = await api.getUpdates();
+      const baseline = await api.getBaseline();
+      const projectedBaseline = await api.getProjectedBaseline();
+      const availableDates = await api.getAvailableDates();
+      const testedIds = new Set(get().testedIds);
+      for (const id of ids) testedIds.delete(id);
+      set({ updates, baseline, projectedBaseline, availableDates, testedIds });
+      if (testedIds.size > 0) {
+        const testImpactBaseline = await api.getTestImpactBaseline([...testedIds]);
+        set({ testImpactBaseline });
+      } else {
+        set({ testImpactBaseline: null });
+      }
+    } catch (e) {
+      set({ error: (e as Error).message });
+    }
+  },
+
+  rejectMany: async (ids) => {
+    try {
+      for (const id of ids) await api.rejectUpdate(id);
+      const updates = await api.getUpdates();
+      const projectedBaseline = await api.getProjectedBaseline();
+      const testedIds = new Set(get().testedIds);
+      for (const id of ids) testedIds.delete(id);
+      set({ updates, projectedBaseline, testedIds });
+      if (testedIds.size > 0) {
+        const testImpactBaseline = await api.getTestImpactBaseline([...testedIds]);
+        set({ testImpactBaseline });
+      } else {
+        set({ testImpactBaseline: null });
+      }
+    } catch (e) {
+      set({ error: (e as Error).message });
+    }
+  },
+
+  testImpactMany: async (ids) => {
+    const testedIds = new Set(get().testedIds);
+    for (const id of ids) testedIds.add(id);
     set({ testedIds });
 
     if (testedIds.size === 0) {
