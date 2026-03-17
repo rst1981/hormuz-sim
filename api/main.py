@@ -56,7 +56,9 @@ def health():
     return {
         "status": "ok",
         "anthropic_key_set": bool(settings.ANTHROPIC_API_KEY),
-        "anthropic_key_prefix": settings.ANTHROPIC_API_KEY[:12] if settings.ANTHROPIC_API_KEY else "",
+        "anthropic_key_prefix": settings.ANTHROPIC_API_KEY[:20] if settings.ANTHROPIC_API_KEY else "",
+        "anthropic_key_suffix": settings.ANTHROPIC_API_KEY[-6:] if settings.ANTHROPIC_API_KEY else "",
+        "anthropic_key_len": len(settings.ANTHROPIC_API_KEY),
         "env_has_hormuz_key": bool(os.environ.get("HORMUZ_ANTHROPIC_API_KEY")),
         "env_has_plain_key": bool(os.environ.get("ANTHROPIC_API_KEY")),
     }
