@@ -104,6 +104,9 @@ export const getUpdate = (id: string) =>
 export const triggerCrawl = () =>
   request<{ message: string; updates: SituationUpdate[] }>('/updates/crawl', { method: 'POST' });
 
+export const resetUpdates = () =>
+  request<{ message: string }>('/updates/reset', { method: 'POST' });
+
 export const createManualUpdate = (data: {
   date: string; summary: string; raw_text?: string;
   parameter_changes?: { parameter: string; category: string; delta?: number; absolute?: number; reasoning?: string }[];

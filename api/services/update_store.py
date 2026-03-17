@@ -165,6 +165,12 @@ class UpdateStore:
             self._write_log(new_entries)
             return True
 
+    def reset_all(self) -> None:
+        """Delete all updates and seen hashes."""
+        with self._lock:
+            self._write_log([])
+            self._write_seen_hashes(set())
+
     # ── Deduplication ────────────────────────────────────────────
 
     def get_seen_hashes(self) -> set[str]:

@@ -226,7 +226,7 @@ export function SituationUpdatesPage() {
   const {
     updates, baseline, testImpactBaseline, testedIds, crawling, loading, error,
     fetchUpdates, fetchBaseline, fetchProjectedBaseline, triggerCrawl,
-    approve, reject, toggleTestImpact, testImpactMany, approveMany, rejectMany, clearTestImpact,
+    approve, reject, toggleTestImpact, testImpactMany, approveMany, rejectMany, resetAndRescrape, clearTestImpact,
     saveSnapshot, fetchSnapshots,
   } = useUpdateStore();
   const [filter, setFilter] = useState<string>('');
@@ -276,13 +276,23 @@ export function SituationUpdatesPage() {
       {/* Hero: Scrape button + sources */}
       <div className="bg-bg-card border border-border rounded-lg p-6 text-center space-y-3">
         <h2 className="text-lg font-semibold text-text-primary">Situation Updates</h2>
-        <button
-          onClick={() => triggerCrawl()}
-          disabled={crawling}
-          className="px-8 py-3 bg-text-accent text-bg-primary rounded-lg text-base font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
-        >
-          {crawling ? 'Scraping...' : 'Scrape OSINT / News'}
-        </button>
+        <div className="flex items-center justify-center gap-3">
+          <button
+            onClick={() => triggerCrawl()}
+            disabled={crawling}
+            className="px-8 py-3 bg-text-accent text-bg-primary rounded-lg text-base font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {crawling ? 'Scraping...' : 'Scrape OSINT / News'}
+          </button>
+          <button
+            onClick={() => resetAndRescrape()}
+            disabled={crawling}
+            className="px-4 py-3 bg-bg-hover border border-border rounded-lg text-sm text-text-muted hover:text-[#f85149] hover:border-[#f85149] transition-colors disabled:opacity-50"
+            title="Clear all existing updates and re-scrape with fresh analysis"
+          >
+            {crawling ? '...' : 'Reset & Re-scrape'}
+          </button>
+        </div>
         <div className="text-xs text-text-muted space-y-1">
           <p>Sources: {DATA_SOURCES.join(' \u00b7 ')}</p>
           <p>

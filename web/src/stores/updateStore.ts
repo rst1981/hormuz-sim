@@ -28,6 +28,7 @@ interface UpdateStore {
   testImpactMany: (ids: string[]) => Promise<void>;
   approveMany: (ids: string[]) => Promise<void>;
   rejectMany: (ids: string[]) => Promise<void>;
+  resetAndRescrape: () => Promise<void>;
   clearTestImpact: () => void;
 }
 
@@ -236,6 +237,21 @@ export const useUpdateStore = create<UpdateStore>((set, get) => ({
       set({ testImpactBaseline });
     } catch (e) {
       set({ error: (e as Error).message });
+    }
+  },
+
+  resetAndRescrape: async () => {
+    set({ crawling: true, error: null, testedIds: new Set(), testImpactBaseline: null });
+    try {
+      await api.resetUpdates();
+      await api.triggerCrawl();
+      const updates = await api.getUpdates();
+      const baseline = await api.getBaseline();
+      const projectedBaseline = await api.getProjectedBaseline();
+      set({ updates, baseline, projectedBaseline, crawling: false });
+      return;
+    } catch (e) {
+      set({ error: (e as Error).message, crawling: false });
     }
   },
 

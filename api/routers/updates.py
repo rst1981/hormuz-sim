@@ -203,6 +203,13 @@ def reject_update(update_id: str):
     return entry
 
 
+@router.post("/reset")
+def reset_updates():
+    """Delete all updates and clear seen hashes so next scrape re-analyzes everything."""
+    update_store.reset_all()
+    return {"message": "All updates and seen hashes cleared"}
+
+
 @router.delete("/{update_id}")
 def delete_update(update_id: str):
     """Delete an update entirely."""
