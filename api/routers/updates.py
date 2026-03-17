@@ -57,6 +57,12 @@ def get_baseline(date: Optional[str] = None):
     return update_store.get_current_baseline()
 
 
+@router.get("/baseline/projected")
+def get_projected_baseline():
+    """Get the projected baseline if all pending updates were approved."""
+    return update_store.get_projected_baseline()
+
+
 @router.get("/dates")
 def get_available_dates():
     """Get list of dates that have applied updates (for historical sim date picker)."""

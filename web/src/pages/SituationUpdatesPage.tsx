@@ -109,43 +109,105 @@ function UpdateCard({
   );
 }
 
-function BaselinePanel({ baseline }: { baseline: BaselineState | null }) {
+function formatVal(value: number): string {
+  return value % 1 !== 0 ? value.toFixed(3) : String(value);
+}
+
+function BaselinePanel({
+  baseline,
+  projected,
+  showImpact,
+  onToggleImpact,
+}: {
+  baseline: BaselineState | null;
+  projected: BaselineState | null;
+  showImpact: boolean;
+  onToggleImpact: () => void;
+}) {
   if (!baseline) return null;
+
+  const hasPending = projected && JSON.stringify(baseline) !== JSON.stringify(projected);
 
   return (
     <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
-      <h3 className="text-xs uppercase tracking-wider text-text-muted">Current Baseline</h3>
-      {(Object.entries(baseline) as [string, Record<string, number>][]).map(([category, params]) => (
-        <div key={category}>
-          <div className="text-[10px] uppercase tracking-wider text-text-accent mb-1">{category.replace(/_/g, ' ')}</div>
-          <div className="space-y-0.5">
-            {Object.entries(params).map(([name, value]) => (
-              <div key={name} className="flex justify-between text-xs font-mono">
-                <span className="text-text-muted">{name}</span>
-                <span className="text-text-primary">{typeof value === 'number' && value % 1 !== 0 ? value.toFixed(3) : String(value)}</span>
-              </div>
-            ))}
+      <div className="flex items-center justify-between">
+        <h3 className="text-xs uppercase tracking-wider text-text-muted">Current Baseline</h3>
+        {hasPending && (
+          <button
+            onClick={onToggleImpact}
+            className={`text-[10px] px-2 py-0.5 rounded border transition-colors ${
+              showImpact
+                ? 'bg-[#d2992215] border-[#d29922] text-[#d29922]'
+                : 'bg-bg-hover border-border text-text-muted hover:text-text-primary'
+            }`}
+          >
+            {showImpact ? 'Hide Impact' : 'Show Baseline Impact'}
+          </button>
+        )}
+      </div>
+      {(Object.entries(baseline) as [string, Record<string, number>][]).map(([category, params]) => {
+        const projectedParams = showImpact && projected
+          ? (projected as Record<string, Record<string, number>>)[category]
+          : null;
+
+        return (
+          <div key={category}>
+            <div className="text-[10px] uppercase tracking-wider text-text-accent mb-1">{category.replace(/_/g, ' ')}</div>
+            <div className="space-y-0.5">
+              {Object.entries(params).map(([name, value]) => {
+                const projVal = projectedParams?.[name];
+                const changed = projVal != null && projVal !== value;
+                const delta = changed ? projVal - value : 0;
+
+                return (
+                  <div key={name} className={`flex justify-between text-xs font-mono ${changed ? 'bg-[#d2992208] -mx-1 px-1 rounded' : ''}`}>
+                    <span className="text-text-muted">{name}</span>
+                    <span className="flex items-center gap-1.5">
+                      <span className={changed ? 'text-text-muted line-through' : 'text-text-primary'}>
+                        {formatVal(value)}
+                      </span>
+                      {changed && (
+                        <>
+                          <span className="text-[#d29922]">&rarr;</span>
+                          <span className="text-[#d29922] font-semibold">{formatVal(projVal)}</span>
+                          <span className={`text-[10px] ${delta > 0 ? 'text-[#3fb950]' : 'text-[#f85149]'}`}>
+                            ({delta > 0 ? '+' : ''}{delta.toFixed(3)})
+                          </span>
+                        </>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
+      {showImpact && hasPending && (
+        <p className="text-[10px] text-[#d29922] italic">
+          Showing projected changes if all pending updates are approved
+        </p>
+      )}
     </div>
   );
 }
 
 export function SituationUpdatesPage() {
   const {
-    updates, baseline, crawling, loading, error,
-    fetchUpdates, fetchBaseline, triggerCrawl, approve, reject,
+    updates, baseline, projectedBaseline, crawling, loading, error,
+    fetchUpdates, fetchBaseline, fetchProjectedBaseline, triggerCrawl, approve, reject,
     saveSnapshot,
   } = useUpdateStore();
   const [filter, setFilter] = useState<string>('');
   const [snapshotName, setSnapshotName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showImpact, setShowImpact] = useState(false);
 
   useEffect(() => {
     fetchUpdates();
     fetchBaseline();
-  }, [fetchUpdates, fetchBaseline]);
+    fetchProjectedBaseline();
+  }, [fetchUpdates, fetchBaseline, fetchProjectedBaseline]);
 
   const filtered = filter ? updates.filter(u => u.status === filter) : updates;
   const sorted = [...filtered].reverse();
@@ -250,7 +312,12 @@ export function SituationUpdatesPage() {
         </div>
 
         <div>
-          <BaselinePanel baseline={baseline} />
+          <BaselinePanel
+            baseline={baseline}
+            projected={projectedBaseline}
+            showImpact={showImpact}
+            onToggleImpact={() => setShowImpact(!showImpact)}
+          />
         </div>
       </div>
     </div>

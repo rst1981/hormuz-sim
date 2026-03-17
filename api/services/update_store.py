@@ -221,6 +221,39 @@ class UpdateStore:
 
         return self.get_baseline_for_date(date.today().isoformat())
 
+    def get_projected_baseline(self) -> dict[str, dict[str, float]]:
+        """Baseline if all pending updates were also approved."""
+        from datetime import date as date_cls
+
+        defaults = _param_defaults()
+        baseline = self.get_current_baseline()
+        today = date_cls.today().isoformat()
+
+        entries = self._read_log()
+        pending = sorted(
+            [e for e in entries if e["status"] == "pending" and e["date"] <= today],
+            key=lambda e: e["created_at"],
+        )
+
+        for entry in pending:
+            for change in entry["parameter_changes"]:
+                cat = change["category"]
+                param = change["parameter"]
+                if cat not in baseline or param not in baseline[cat]:
+                    continue
+
+                meta = defaults[cat][param]
+                if change.get("absolute") is not None:
+                    val = change["absolute"]
+                elif change.get("delta") is not None:
+                    val = baseline[cat][param] + change["delta"]
+                else:
+                    continue
+
+                baseline[cat][param] = max(meta["min"], min(meta["max"], val))
+
+        return baseline
+
     def get_available_dates(self) -> list[str]:
         """Return sorted list of dates that have at least one applied update."""
         entries = self._read_log()

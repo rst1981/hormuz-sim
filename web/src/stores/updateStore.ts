@@ -5,6 +5,7 @@ import * as api from '../api/client';
 interface UpdateStore {
   updates: SituationUpdate[];
   baseline: BaselineState | null;
+  projectedBaseline: BaselineState | null;
   availableDates: string[];
   snapshots: BaselineSnapshot[];
   loading: boolean;
@@ -13,6 +14,7 @@ interface UpdateStore {
 
   fetchUpdates: (status?: string) => Promise<void>;
   fetchBaseline: (date?: string) => Promise<void>;
+  fetchProjectedBaseline: () => Promise<void>;
   fetchDates: () => Promise<void>;
   fetchSnapshots: () => Promise<void>;
   saveSnapshot: (name: string) => Promise<void>;
@@ -23,7 +25,7 @@ interface UpdateStore {
 }
 
 export const useUpdateStore = create<UpdateStore>((set, _get) => ({
-  updates: [], baseline: null, availableDates: [], snapshots: [],
+  updates: [], baseline: null, projectedBaseline: null, availableDates: [], snapshots: [],
   loading: false, crawling: false, error: null,
 
   fetchUpdates: async (status) => {
@@ -40,6 +42,15 @@ export const useUpdateStore = create<UpdateStore>((set, _get) => ({
     try {
       const baseline = await api.getBaseline(date);
       set({ baseline });
+    } catch (e) {
+      set({ error: (e as Error).message });
+    }
+  },
+
+  fetchProjectedBaseline: async () => {
+    try {
+      const projectedBaseline = await api.getProjectedBaseline();
+      set({ projectedBaseline });
     } catch (e) {
       set({ error: (e as Error).message });
     }
@@ -87,9 +98,10 @@ export const useUpdateStore = create<UpdateStore>((set, _get) => ({
     set({ crawling: true, error: null });
     try {
       const result = await api.triggerCrawl();
-      // Refresh the full list
+      // Refresh the full list + projected baseline
       const updates = await api.getUpdates();
-      set({ updates, crawling: false });
+      const projectedBaseline = await api.getProjectedBaseline();
+      set({ updates, projectedBaseline, crawling: false });
       return result.updates;
     } catch (e) {
       set({ error: (e as Error).message, crawling: false });
@@ -102,8 +114,9 @@ export const useUpdateStore = create<UpdateStore>((set, _get) => ({
       await api.approveUpdate(id);
       const updates = await api.getUpdates();
       const baseline = await api.getBaseline();
+      const projectedBaseline = await api.getProjectedBaseline();
       const availableDates = await api.getAvailableDates();
-      set({ updates, baseline, availableDates });
+      set({ updates, baseline, projectedBaseline, availableDates });
     } catch (e) {
       set({ error: (e as Error).message });
     }
@@ -113,7 +126,8 @@ export const useUpdateStore = create<UpdateStore>((set, _get) => ({
     try {
       await api.rejectUpdate(id);
       const updates = await api.getUpdates();
-      set({ updates });
+      const projectedBaseline = await api.getProjectedBaseline();
+      set({ updates, projectedBaseline });
     } catch (e) {
       set({ error: (e as Error).message });
     }

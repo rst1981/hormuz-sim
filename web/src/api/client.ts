@@ -122,6 +122,9 @@ export const deleteUpdate = (id: string) =>
 export const getBaseline = (date?: string) =>
   request<BaselineState>(`/updates/baseline${date ? `?date=${date}` : ''}`);
 
+export const getProjectedBaseline = () =>
+  request<BaselineState>('/updates/baseline/projected');
+
 export const getAvailableDates = () =>
   request<string[]>('/updates/dates');
 
