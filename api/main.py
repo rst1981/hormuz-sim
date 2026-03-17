@@ -51,4 +51,12 @@ app.include_router(ws_router)
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok"}
+    from api.config import settings
+    import os
+    return {
+        "status": "ok",
+        "anthropic_key_set": bool(settings.ANTHROPIC_API_KEY),
+        "anthropic_key_prefix": settings.ANTHROPIC_API_KEY[:12] if settings.ANTHROPIC_API_KEY else "",
+        "env_has_hormuz_key": bool(os.environ.get("HORMUZ_ANTHROPIC_API_KEY")),
+        "env_has_plain_key": bool(os.environ.get("ANTHROPIC_API_KEY")),
+    }
