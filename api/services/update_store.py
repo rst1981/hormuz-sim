@@ -255,6 +255,33 @@ class UpdateStore:
 
         return baseline
 
+    def get_test_impact_baseline(self, update_ids: list[str]) -> dict[str, dict[str, float]]:
+        """Compute baseline as if the given update IDs were applied (for test-impact preview)."""
+        defaults = _param_defaults()
+        baseline = self.get_current_baseline()
+
+        entries = self._read_log()
+        selected = [e for e in entries if e["id"] in set(update_ids)]
+        # Sort by creation order
+        selected.sort(key=lambda e: e["created_at"])
+
+        for entry in selected:
+            for change in entry["parameter_changes"]:
+                cat = change["category"]
+                param = change["parameter"]
+                if cat not in baseline or param not in baseline[cat]:
+                    continue
+                meta = defaults[cat][param]
+                if change.get("absolute") is not None:
+                    val = change["absolute"]
+                elif change.get("delta") is not None:
+                    val = baseline[cat][param] + change["delta"]
+                else:
+                    continue
+                baseline[cat][param] = max(meta["min"], min(meta["max"], val))
+
+        return baseline
+
     def get_available_dates(self) -> list[str]:
         """Return sorted list of dates that have at least one applied update."""
         entries = self._read_log()

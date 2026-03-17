@@ -57,6 +57,24 @@ class SnapshotStore:
             self._write(entries)
         return asdict(snapshot)
 
+    def ensure_original_baseline(self) -> None:
+        """Save the original Day-18 baseline if no 'Original' snapshot exists yet."""
+        entries = self._read()
+        if any(s["name"].startswith("Original") for s in entries):
+            return
+        baseline = update_store.get_current_baseline()
+        today = date.today().isoformat()
+        snapshot = BaselineSnapshot(
+            id=uuid.uuid4().hex[:12],
+            name=f"Original — {today}",
+            date=today,
+            baseline=baseline,
+        )
+        with self._lock:
+            entries = self._read()
+            entries.insert(0, asdict(snapshot))
+            self._write(entries)
+
     def list_snapshots(self) -> list[dict]:
         return self._read()
 

@@ -58,6 +58,16 @@ def get_baseline(date: Optional[str] = None):
     return update_store.get_current_baseline()
 
 
+class TestImpactRequest(BaseModel):
+    update_ids: list[str]
+
+
+@router.post("/baseline/test-impact")
+def get_test_impact_baseline(req: TestImpactRequest):
+    """Compute baseline as if the given updates were applied (preview mode)."""
+    return update_store.get_test_impact_baseline(req.update_ids)
+
+
 @router.get("/baseline/projected")
 def get_projected_baseline():
     """Get the projected baseline if all pending updates were approved."""

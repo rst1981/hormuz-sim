@@ -17,73 +17,95 @@ export function DashboardPage() {
 
   if (!simId) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-8">
+      <div className="flex flex-col items-center justify-center h-full gap-6">
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-text-primary">Hormuz Crisis War Room</h2>
           <p className="text-text-muted text-sm max-w-md mt-2">
-            Interactive simulation of the Strait of Hormuz crisis. Create a simulation to begin exploring scenarios.
+            Interactive simulation of the Strait of Hormuz crisis. Select a baseline and create a simulation to begin.
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 w-72">
-          <button
-            onClick={() => createSim()}
-            disabled={loading}
-            className="px-6 py-2.5 bg-text-accent text-bg-primary rounded font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
-          >
-            {loading ? 'Creating...' : 'Create Baseline Simulation'}
-          </button>
+        {/* Baseline selector */}
+        <div className="w-96 space-y-3">
+          <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
+            <h3 className="text-xs uppercase tracking-wider text-text-muted font-semibold text-center">Choose Baseline</h3>
+
+            {/* Default: Day 18 baseline (no snapshot) */}
+            <button
+              onClick={() => createSim()}
+              disabled={loading}
+              className={`w-full px-4 py-3 rounded border text-left transition-colors ${
+                !selectedSnapshot
+                  ? 'bg-text-accent text-bg-primary border-text-accent font-semibold'
+                  : 'bg-bg-hover border-border text-text-primary hover:border-text-accent'
+              }`}
+            >
+              <div className="text-sm font-medium">Day 18 Defaults</div>
+              <div className="text-[10px] opacity-75 mt-0.5">Original simulation parameters — no situation updates applied</div>
+            </button>
+
+            {/* Saved snapshots */}
+            {snapshots.length > 0 && (
+              <>
+                <div className="text-[10px] uppercase tracking-wider text-text-muted text-center">
+                  — or load a saved baseline —
+                </div>
+                <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                  {snapshots.map(s => (
+                    <button
+                      key={s.id}
+                      onClick={() => setSelectedSnapshot(s.id === selectedSnapshot ? '' : s.id)}
+                      className={`w-full px-3 py-2 rounded border text-left text-sm transition-colors ${
+                        selectedSnapshot === s.id
+                          ? 'border-text-accent bg-[#58a6ff10] text-text-primary'
+                          : 'border-border bg-bg-hover text-text-muted hover:text-text-primary hover:border-text-accent'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="font-mono text-xs">{s.name}</span>
+                        <span className="text-[10px] text-text-muted">{s.date}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                {selectedSnapshot && (
+                  <button
+                    onClick={() => createSim('baseline', undefined, undefined, undefined, selectedSnapshot)}
+                    disabled={loading}
+                    className="w-full px-4 py-2.5 bg-text-accent text-bg-primary rounded font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+                  >
+                    {loading ? 'Creating...' : 'Create from Selected Baseline'}
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+
+          {availableDates.length > 0 && (
+            <div className="bg-bg-card border border-border rounded-lg p-4 space-y-2">
+              <h3 className="text-xs uppercase tracking-wider text-text-muted font-semibold text-center">Historical Date</h3>
+              <div className="flex gap-2">
+                <select
+                  value={selectedDate}
+                  onChange={e => setSelectedDate(e.target.value)}
+                  className="flex-1 px-3 py-2 bg-bg-primary border border-border rounded text-sm font-mono text-text-primary"
+                >
+                  <option value="">Select date...</option>
+                  {availableDates.map(d => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => selectedDate && createSim('baseline', undefined, undefined, selectedDate)}
+                  disabled={!selectedDate || loading}
+                  className="px-4 py-2 bg-bg-hover border border-border rounded text-sm hover:bg-bg-hover transition-colors disabled:opacity-40 font-mono"
+                >
+                  Go
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-
-        {snapshots.length > 0 && (
-          <div className="flex flex-col items-center gap-2 pt-2 border-t border-border w-72">
-            <span className="text-xs text-text-muted uppercase tracking-wider">Start from saved baseline</span>
-            <div className="flex gap-2 w-full">
-              <select
-                value={selectedSnapshot}
-                onChange={e => setSelectedSnapshot(e.target.value)}
-                className="flex-1 px-3 py-2 bg-bg-card border border-border rounded text-sm font-mono text-text-primary"
-              >
-                <option value="">Select snapshot...</option>
-                {snapshots.map(s => (
-                  <option key={s.id} value={s.id}>{s.name} ({s.date})</option>
-                ))}
-              </select>
-              <button
-                onClick={() => selectedSnapshot && createSim('baseline', undefined, undefined, undefined, selectedSnapshot)}
-                disabled={!selectedSnapshot || loading}
-                className="px-4 py-2 bg-bg-card border border-border rounded text-sm hover:bg-bg-hover transition-colors disabled:opacity-40 font-mono"
-              >
-                Create
-              </button>
-            </div>
-          </div>
-        )}
-
-        {availableDates.length > 0 && (
-          <div className="flex flex-col items-center gap-2 pt-2 border-t border-border w-72">
-            <span className="text-xs text-text-muted uppercase tracking-wider">Start from historical date</span>
-            <div className="flex gap-2 w-full">
-              <select
-                value={selectedDate}
-                onChange={e => setSelectedDate(e.target.value)}
-                className="flex-1 px-3 py-2 bg-bg-card border border-border rounded text-sm font-mono text-text-primary"
-              >
-                <option value="">Select date...</option>
-                {availableDates.map(d => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-              <button
-                onClick={() => selectedDate && createSim('baseline', undefined, undefined, selectedDate)}
-                disabled={!selectedDate || loading}
-                className="px-4 py-2 bg-bg-card border border-border rounded text-sm hover:bg-bg-hover transition-colors disabled:opacity-40 font-mono"
-              >
-                Go
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     );
   }

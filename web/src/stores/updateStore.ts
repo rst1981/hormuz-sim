@@ -6,6 +6,8 @@ interface UpdateStore {
   updates: SituationUpdate[];
   baseline: BaselineState | null;
   projectedBaseline: BaselineState | null;
+  testImpactBaseline: BaselineState | null;
+  testedIds: Set<string>;
   availableDates: string[];
   snapshots: BaselineSnapshot[];
   loading: boolean;
@@ -22,10 +24,13 @@ interface UpdateStore {
   triggerCrawl: () => Promise<SituationUpdate[]>;
   approve: (id: string) => Promise<void>;
   reject: (id: string) => Promise<void>;
+  toggleTestImpact: (id: string) => Promise<void>;
+  clearTestImpact: () => void;
 }
 
-export const useUpdateStore = create<UpdateStore>((set, _get) => ({
-  updates: [], baseline: null, projectedBaseline: null, availableDates: [], snapshots: [],
+export const useUpdateStore = create<UpdateStore>((set, get) => ({
+  updates: [], baseline: null, projectedBaseline: null, testImpactBaseline: null,
+  testedIds: new Set(), availableDates: [], snapshots: [],
   loading: false, crawling: false, error: null,
 
   fetchUpdates: async (status) => {
@@ -98,7 +103,6 @@ export const useUpdateStore = create<UpdateStore>((set, _get) => ({
     set({ crawling: true, error: null });
     try {
       const result = await api.triggerCrawl();
-      // Refresh the full list + projected baseline
       const updates = await api.getUpdates();
       const projectedBaseline = await api.getProjectedBaseline();
       set({ updates, projectedBaseline, crawling: false });
@@ -116,7 +120,17 @@ export const useUpdateStore = create<UpdateStore>((set, _get) => ({
       const baseline = await api.getBaseline();
       const projectedBaseline = await api.getProjectedBaseline();
       const availableDates = await api.getAvailableDates();
-      set({ updates, baseline, projectedBaseline, availableDates });
+      // Remove from tested set if it was there
+      const testedIds = new Set(get().testedIds);
+      testedIds.delete(id);
+      set({ updates, baseline, projectedBaseline, availableDates, testedIds });
+      // Refresh test impact if there are still tested items
+      if (testedIds.size > 0) {
+        const testImpactBaseline = await api.getTestImpactBaseline([...testedIds]);
+        set({ testImpactBaseline });
+      } else {
+        set({ testImpactBaseline: null });
+      }
     } catch (e) {
       set({ error: (e as Error).message });
     }
@@ -127,9 +141,44 @@ export const useUpdateStore = create<UpdateStore>((set, _get) => ({
       await api.rejectUpdate(id);
       const updates = await api.getUpdates();
       const projectedBaseline = await api.getProjectedBaseline();
-      set({ updates, projectedBaseline });
+      // Remove from tested set if it was there
+      const testedIds = new Set(get().testedIds);
+      testedIds.delete(id);
+      set({ updates, projectedBaseline, testedIds });
+      if (testedIds.size > 0) {
+        const testImpactBaseline = await api.getTestImpactBaseline([...testedIds]);
+        set({ testImpactBaseline });
+      } else {
+        set({ testImpactBaseline: null });
+      }
     } catch (e) {
       set({ error: (e as Error).message });
     }
+  },
+
+  toggleTestImpact: async (id) => {
+    const testedIds = new Set(get().testedIds);
+    if (testedIds.has(id)) {
+      testedIds.delete(id);
+    } else {
+      testedIds.add(id);
+    }
+    set({ testedIds });
+
+    if (testedIds.size === 0) {
+      set({ testImpactBaseline: null });
+      return;
+    }
+
+    try {
+      const testImpactBaseline = await api.getTestImpactBaseline([...testedIds]);
+      set({ testImpactBaseline });
+    } catch (e) {
+      set({ error: (e as Error).message });
+    }
+  },
+
+  clearTestImpact: () => {
+    set({ testedIds: new Set(), testImpactBaseline: null });
   },
 }));

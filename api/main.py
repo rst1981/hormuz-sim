@@ -39,6 +39,11 @@ def _daily_baseline_snapshot() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Ensure the original baseline snapshot exists
+    from api.services.snapshot_store import snapshot_store
+    snapshot_store.ensure_original_baseline()
+    logger.info("Original baseline snapshot ensured")
+
     from apscheduler.schedulers.background import BackgroundScheduler
     from apscheduler.triggers.cron import CronTrigger
 

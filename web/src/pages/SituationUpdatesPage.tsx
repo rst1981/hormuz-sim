@@ -63,35 +63,48 @@ function UpdateCard({
   update,
   onApprove,
   onReject,
+  onTestImpact,
+  isTested,
 }: {
   update: SituationUpdate;
   onApprove: () => void;
   onReject: () => void;
+  onTestImpact: () => void;
+  isTested: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-bg-card border border-border rounded-lg p-4 space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-text-muted">{update.date}</span>
-          <span className="text-xs text-text-muted">{update.source}</span>
+    <div className={`bg-bg-card border rounded-lg p-3 space-y-1.5 ${isTested ? 'border-[#58a6ff]' : 'border-border'}`}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-[10px] font-mono text-text-muted shrink-0">{update.date}</span>
           <StatusBadge status={update.status} />
           {update.source_url && (
-            <a href={update.source_url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-text-accent hover:underline">↗</a>
+            <a href={update.source_url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-text-accent hover:underline shrink-0">↗</a>
           )}
         </div>
         {update.status === 'pending' && (
-          <div className="flex gap-1.5">
+          <div className="flex gap-1 shrink-0">
+            <button
+              onClick={onTestImpact}
+              className={`px-2 py-0.5 text-[10px] rounded border transition-colors ${
+                isTested
+                  ? 'bg-[#58a6ff15] border-[#58a6ff] text-[#58a6ff]'
+                  : 'bg-bg-hover border-border text-text-muted hover:text-[#58a6ff]'
+              }`}
+            >
+              {isTested ? 'Testing' : 'Test'}
+            </button>
             <button
               onClick={onApprove}
-              className="px-2.5 py-1 text-xs rounded bg-bg-hover border border-border text-[#3fb950] hover:bg-[#3fb95015] transition-colors"
+              className="px-2 py-0.5 text-[10px] rounded bg-bg-hover border border-border text-[#3fb950] hover:bg-[#3fb95015] transition-colors"
             >
               Approve
             </button>
             <button
               onClick={onReject}
-              className="px-2.5 py-1 text-xs rounded bg-bg-hover border border-border text-[#f85149] hover:bg-[#f8514915] transition-colors"
+              className="px-2 py-0.5 text-[10px] rounded bg-bg-hover border border-border text-[#f85149] hover:bg-[#f8514915] transition-colors"
             >
               Reject
             </button>
@@ -99,10 +112,10 @@ function UpdateCard({
         )}
       </div>
 
-      <p className="text-sm text-text-primary">{update.summary}</p>
+      <p className="text-xs text-text-primary leading-snug">{update.summary}</p>
 
       {update.parameter_changes.length > 0 && (
-        <div className="space-y-1 pt-1">
+        <div className="space-y-0.5">
           {update.parameter_changes.map((c, i) => (
             <ChangeDisplay key={i} change={c} />
           ))}
@@ -113,11 +126,11 @@ function UpdateCard({
         onClick={() => setExpanded(!expanded)}
         className="text-[10px] text-text-accent hover:underline"
       >
-        {expanded ? 'Hide source text' : 'Show source text'}
+        {expanded ? 'Hide source' : 'Source'}
       </button>
 
       {expanded && (
-        <pre className="text-[11px] text-text-muted bg-bg-primary border border-border rounded p-2 whitespace-pre-wrap max-h-40 overflow-y-auto">
+        <pre className="text-[10px] text-text-muted bg-bg-primary border border-border rounded p-1.5 whitespace-pre-wrap max-h-24 overflow-y-auto">
           {update.raw_text}
         </pre>
       )}
@@ -129,95 +142,96 @@ function formatVal(value: number): string {
   return value % 1 !== 0 ? value.toFixed(3) : String(value);
 }
 
-function BaselinePanel({
+function DualBaselinePanel({
   baseline,
-  projected,
-  showImpact,
-  onToggleImpact,
+  dynamic,
+  dynamicLabel,
 }: {
   baseline: BaselineState | null;
-  projected: BaselineState | null;
-  showImpact: boolean;
-  onToggleImpact: () => void;
+  dynamic: BaselineState | null;
+  dynamicLabel: string;
 }) {
   if (!baseline) return null;
 
-  const hasPending = projected && JSON.stringify(baseline) !== JSON.stringify(projected);
-
   return (
-    <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-xs uppercase tracking-wider text-text-muted">Current Baseline</h3>
-        {hasPending && (
-          <button
-            onClick={onToggleImpact}
-            className={`text-[10px] px-2 py-0.5 rounded border transition-colors ${
-              showImpact
-                ? 'bg-[#d2992215] border-[#d29922] text-[#d29922]'
-                : 'bg-bg-hover border-border text-text-muted hover:text-text-primary'
-            }`}
-          >
-            {showImpact ? 'Hide Impact' : 'Show Baseline Impact'}
-          </button>
-        )}
-      </div>
-      {(Object.entries(baseline) as unknown as [string, Record<string, number>][]).map(([category, params]) => {
-        const projectedParams = showImpact && projected
-          ? (projected as unknown as Record<string, Record<string, number>>)[category]
-          : null;
-
-        return (
+    <div className="grid grid-cols-2 gap-3">
+      {/* Current baseline — left half */}
+      <div className="bg-bg-card border border-border rounded-lg p-3 space-y-2">
+        <h3 className="text-[10px] uppercase tracking-wider text-text-muted font-semibold">Current Baseline</h3>
+        {(Object.entries(baseline) as unknown as [string, Record<string, number>][]).map(([category, params]) => (
           <div key={category}>
-            <div className="text-[10px] uppercase tracking-wider text-text-accent mb-1">{category.replace(/_/g, ' ')}</div>
-            <div className="space-y-0.5">
-              {Object.entries(params).map(([name, value]) => {
-                const projVal = projectedParams?.[name];
-                const changed = projVal != null && projVal !== value;
-                const delta = changed ? projVal - value : 0;
-
-                return (
-                  <div key={name} className={`flex justify-between text-xs font-mono ${changed ? 'bg-[#d2992208] -mx-1 px-1 rounded' : ''}`}>
-                    <span className="text-text-muted">{name}</span>
-                    <span className="flex items-center gap-1.5">
-                      <span className={changed ? 'text-text-muted line-through' : 'text-text-primary'}>
-                        {formatVal(value)}
-                      </span>
-                      {changed && (
-                        <>
-                          <span className="text-[#d29922]">&rarr;</span>
-                          <span className="text-[#d29922] font-semibold">{formatVal(projVal)}</span>
-                          <span className={`text-[10px] ${delta > 0 ? 'text-[#3fb950]' : 'text-[#f85149]'}`}>
-                            ({delta > 0 ? '+' : ''}{delta.toFixed(3)})
-                          </span>
-                        </>
-                      )}
-                    </span>
-                  </div>
-                );
-              })}
+            <div className="text-[10px] uppercase tracking-wider text-text-accent mb-0.5">{category.replace(/_/g, ' ')}</div>
+            <div className="space-y-0">
+              {Object.entries(params).map(([name, value]) => (
+                <div key={name} className="flex justify-between text-[11px] font-mono leading-tight">
+                  <span className="text-text-muted">{name}</span>
+                  <span className="text-text-primary">{formatVal(value)}</span>
+                </div>
+              ))}
             </div>
           </div>
-        );
-      })}
-      {showImpact && hasPending && (
-        <p className="text-[10px] text-[#d29922] italic">
-          Showing projected changes if all pending updates are approved
-        </p>
-      )}
+        ))}
+      </div>
+
+      {/* Dynamic baseline — right half */}
+      <div className={`bg-bg-card border rounded-lg p-3 space-y-2 ${dynamic ? 'border-[#58a6ff]' : 'border-border'}`}>
+        <h3 className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: dynamic ? '#58a6ff' : '#8b949e' }}>
+          {dynamicLabel}
+        </h3>
+        {(Object.entries(baseline) as unknown as [string, Record<string, number>][]).map(([category, params]) => {
+          const dynParams = dynamic
+            ? (dynamic as unknown as Record<string, Record<string, number>>)[category]
+            : null;
+
+          return (
+            <div key={category}>
+              <div className="text-[10px] uppercase tracking-wider text-text-accent mb-0.5">{category.replace(/_/g, ' ')}</div>
+              <div className="space-y-0">
+                {Object.entries(params).map(([name, value]) => {
+                  const dynVal = dynParams?.[name];
+                  const changed = dynVal != null && Math.abs(dynVal - value) > 0.0001;
+                  const delta = changed ? dynVal - value : 0;
+
+                  return (
+                    <div key={name} className={`flex justify-between text-[11px] font-mono leading-tight ${changed ? 'bg-[#58a6ff08] -mx-1 px-1 rounded' : ''}`}>
+                      <span className="text-text-muted">{name}</span>
+                      {changed ? (
+                        <span className="flex items-center gap-1">
+                          <span className="text-[#58a6ff] font-semibold">{formatVal(dynVal)}</span>
+                          <span className={`text-[9px] ${delta > 0 ? 'text-[#3fb950]' : 'text-[#f85149]'}`}>
+                            ({delta > 0 ? '+' : ''}{delta.toFixed(3)})
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-text-muted">{dynamic ? formatVal(value) : '—'}</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+        {!dynamic && (
+          <p className="text-[10px] text-text-muted italic text-center py-4">
+            Click "Test" on pending stories to preview their impact on the baseline
+          </p>
+        )}
+      </div>
     </div>
   );
 }
 
 export function SituationUpdatesPage() {
   const {
-    updates, baseline, projectedBaseline, crawling, loading, error,
-    fetchUpdates, fetchBaseline, fetchProjectedBaseline, triggerCrawl, approve, reject,
-    saveSnapshot,
+    updates, baseline, testImpactBaseline, testedIds, crawling, loading, error,
+    fetchUpdates, fetchBaseline, fetchProjectedBaseline, triggerCrawl,
+    approve, reject, toggleTestImpact, clearTestImpact,
+    saveSnapshot, fetchSnapshots,
   } = useUpdateStore();
   const [filter, setFilter] = useState<string>('');
   const [snapshotName, setSnapshotName] = useState('');
   const [saving, setSaving] = useState(false);
-  const [showImpact, setShowImpact] = useState(false);
   const [expandedCats, setExpandedCats] = useState<Set<string>>(new Set());
 
   const toggleCat = (cat: string) => {
@@ -232,7 +246,8 @@ export function SituationUpdatesPage() {
     fetchUpdates();
     fetchBaseline();
     fetchProjectedBaseline();
-  }, [fetchUpdates, fetchBaseline, fetchProjectedBaseline]);
+    fetchSnapshots();
+  }, [fetchUpdates, fetchBaseline, fetchProjectedBaseline, fetchSnapshots]);
 
   const filtered = filter ? updates.filter(u => u.status === filter) : updates;
   const sorted = [...filtered].reverse();
@@ -254,10 +269,12 @@ export function SituationUpdatesPage() {
     setSaving(false);
   };
 
+  const testedCount = testedIds.size;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Hero: Scrape button + sources */}
-      <div className="bg-bg-card border border-border rounded-lg p-8 text-center space-y-4">
+      <div className="bg-bg-card border border-border rounded-lg p-6 text-center space-y-3">
         <h2 className="text-lg font-semibold text-text-primary">Situation Updates</h2>
         <button
           onClick={() => triggerCrawl()}
@@ -287,30 +304,8 @@ export function SituationUpdatesPage() {
         </div>
       )}
 
-      {/* Save Baseline Snapshot */}
-      <div className="bg-bg-card border border-border rounded-lg p-4">
-        <h3 className="text-xs uppercase tracking-wider text-text-muted mb-2">Save Current Baseline</h3>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={snapshotName}
-            onChange={e => setSnapshotName(e.target.value)}
-            placeholder="Snapshot name (e.g. March 17 baseline)"
-            className="flex-1 px-3 py-2 bg-bg-primary border border-border rounded text-sm text-text-primary placeholder:text-text-muted"
-            onKeyDown={e => e.key === 'Enter' && handleSaveSnapshot()}
-          />
-          <button
-            onClick={handleSaveSnapshot}
-            disabled={!snapshotName.trim() || saving}
-            className="px-4 py-2 bg-bg-hover border border-border rounded text-sm text-text-primary hover:text-text-accent transition-colors disabled:opacity-40"
-          >
-            {saving ? 'Saving...' : 'Save'}
-          </button>
-        </div>
-      </div>
-
       {/* Filters */}
-      <div className="flex gap-1">
+      <div className="flex items-center gap-1">
         {['', 'pending', 'applied', 'rejected'].map(s => (
           <button
             key={s}
@@ -324,18 +319,18 @@ export function SituationUpdatesPage() {
             {s || 'All'}
           </button>
         ))}
-        <span className="text-xs text-text-muted self-center ml-2">{sorted.length} updates</span>
+        <span className="text-xs text-text-muted ml-2">{sorted.length} updates</span>
+        {testedCount > 0 && (
+          <button
+            onClick={clearTestImpact}
+            className="ml-auto text-[10px] px-2 py-0.5 rounded border border-[#58a6ff] text-[#58a6ff] hover:bg-[#58a6ff15] transition-colors"
+          >
+            Clear {testedCount} tested
+          </button>
+        )}
       </div>
 
-      {/* Baseline panel */}
-      <BaselinePanel
-        baseline={baseline}
-        projected={projectedBaseline}
-        showImpact={showImpact}
-        onToggleImpact={() => setShowImpact(!showImpact)}
-      />
-
-      {/* Updates — one column per category */}
+      {/* Story columns */}
       {sorted.length === 0 && !loading && (
         <div className="text-sm text-text-muted text-center py-8">
           No updates yet. Click "Scrape OSINT / News" to fetch the latest intelligence.
@@ -358,19 +353,50 @@ export function SituationUpdatesPage() {
               </span>
             </button>
             {expandedCats.has(cat) && (
-              <div className="px-3 pb-3 space-y-2 max-h-96 overflow-y-auto">
+              <div className="px-2 pb-2 space-y-2 max-h-[28rem] overflow-y-auto">
                 {items.map(update => (
                   <UpdateCard
                     key={update.id}
                     update={update}
                     onApprove={() => approve(update.id)}
                     onReject={() => reject(update.id)}
+                    onTestImpact={() => toggleTestImpact(update.id)}
+                    isTested={testedIds.has(update.id)}
                   />
                 ))}
               </div>
             )}
           </div>
         ))}
+      </div>
+
+      {/* Dual Baseline: Current vs Dynamic */}
+      <DualBaselinePanel
+        baseline={baseline}
+        dynamic={testImpactBaseline}
+        dynamicLabel={testedCount > 0 ? `Test Impact (${testedCount} stories)` : 'Test Impact'}
+      />
+
+      {/* Save Baseline Snapshot */}
+      <div className="bg-bg-card border border-border rounded-lg p-4">
+        <h3 className="text-xs uppercase tracking-wider text-text-muted mb-2">Save Current Baseline as Snapshot</h3>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={snapshotName}
+            onChange={e => setSnapshotName(e.target.value)}
+            placeholder="Snapshot name (e.g. Post-scrape March 17)"
+            className="flex-1 px-3 py-2 bg-bg-primary border border-border rounded text-sm text-text-primary placeholder:text-text-muted"
+            onKeyDown={e => e.key === 'Enter' && handleSaveSnapshot()}
+          />
+          <button
+            onClick={handleSaveSnapshot}
+            disabled={!snapshotName.trim() || saving}
+            className="px-4 py-2 bg-bg-hover border border-border rounded text-sm text-text-primary hover:text-text-accent transition-colors disabled:opacity-40"
+          >
+            {saving ? 'Saving...' : 'Save Snapshot'}
+          </button>
+        </div>
       </div>
     </div>
   );

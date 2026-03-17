@@ -125,6 +125,9 @@ export const getBaseline = (date?: string) =>
 export const getProjectedBaseline = () =>
   request<BaselineState>('/updates/baseline/projected');
 
+export const getTestImpactBaseline = (updateIds: string[]) =>
+  request<BaselineState>('/updates/baseline/test-impact', { method: 'POST', body: JSON.stringify({ update_ids: updateIds }) });
+
 export const getAvailableDates = () =>
   request<string[]>('/updates/dates');
 
