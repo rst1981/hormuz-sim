@@ -180,15 +180,16 @@ def _validate_changes(
     return validated
 
 
-async def analyze_events(
-    events: list,  # list[ScrapedEvent]
-    current_baseline: dict[str, dict[str, float]],
-) -> list[list[dict]]:
-    """Analyze scraped events using Claude API. Returns one list of changes per event."""
-    param_table = _build_parameter_table(current_baseline)
-    system = SYSTEM_PROMPT.replace("{parameter_table}", param_table)
+BATCH_SIZE = 25
 
-    # Build user message with all events
+
+async def _analyze_batch(
+    events: list,
+    system: str,
+    current_baseline: dict[str, dict[str, float]],
+    client: anthropic.Anthropic,
+) -> list[list[dict]]:
+    """Analyze a single batch of events."""
     event_texts = []
     for i, ev in enumerate(events, 1):
         event_texts.append(
@@ -206,22 +207,18 @@ async def analyze_events(
         + "\n---\n".join(event_texts)
     )
 
-    client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
-
     try:
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=4096,
+            max_tokens=8096,
             system=system,
             messages=[{"role": "user", "content": user_msg}],
         )
 
-        # Extract JSON from response
         text = response.content[0].text.strip()
 
-        # Handle markdown code blocks
         if text.startswith("```"):
-            text = text.split("\n", 1)[1]  # remove ```json line
+            text = text.split("\n", 1)[1]
             if text.endswith("```"):
                 text = text[:-3]
             text = text.strip()
@@ -232,16 +229,14 @@ async def analyze_events(
             logger.error(f"Expected array, got {type(raw_result)}")
             return [[] for _ in events]
 
-        # Validate each event's changes
         results = []
-        for i, event_changes in enumerate(raw_result):
+        for event_changes in raw_result:
             if not isinstance(event_changes, list):
                 results.append([])
                 continue
             validated = _validate_changes(event_changes, current_baseline)
             results.append(validated)
 
-        # Pad if Claude returned fewer results than events
         while len(results) < len(events):
             results.append([])
 
@@ -252,4 +247,23 @@ async def analyze_events(
         return [[] for _ in events]
     except Exception as e:
         logger.exception(f"Claude API call failed: {e}")
-        raise
+        return [[] for _ in events]
+
+
+async def analyze_events(
+    events: list,  # list[ScrapedEvent]
+    current_baseline: dict[str, dict[str, float]],
+) -> list[list[dict]]:
+    """Analyze scraped events using Claude API. Returns one list of changes per event."""
+    param_table = _build_parameter_table(current_baseline)
+    system = SYSTEM_PROMPT.replace("{parameter_table}", param_table)
+    client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+
+    results: list[list[dict]] = []
+    for i in range(0, len(events), BATCH_SIZE):
+        batch = events[i:i + BATCH_SIZE]
+        batch_results = await _analyze_batch(batch, system, current_baseline, client)
+        results.extend(batch_results)
+        logger.info(f"Analyzed batch {i // BATCH_SIZE + 1}: {len(batch)} events")
+
+    return results
