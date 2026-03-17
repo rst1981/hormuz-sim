@@ -27,30 +27,28 @@ export function DashboardPage() {
 
         {/* Baseline selector */}
         <div className="w-96 space-y-3">
+          {/* Original baseline */}
+          <button
+            onClick={() => createSim()}
+            disabled={loading}
+            className="w-full bg-bg-card border border-border rounded-lg p-4 text-left hover:border-text-accent transition-colors disabled:opacity-50"
+          >
+            <div className="text-sm font-semibold text-text-primary">Load Original Baseline (17 Mar)</div>
+            <div className="text-[10px] text-text-muted mt-1">Day 18 parameters — no situation updates applied</div>
+          </button>
+
+          {/* Situation update baselines */}
           <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
-            <h3 className="text-xs uppercase tracking-wider text-text-muted font-semibold text-center">Choose Baseline</h3>
+            <h3 className="text-sm font-semibold text-text-primary text-center">Load Situation Update Baseline</h3>
+            <p className="text-[10px] text-text-muted text-center">Baselines generated from approved news events and analysis</p>
 
-            {/* Default: Day 18 baseline (no snapshot) */}
-            <button
-              onClick={() => createSim()}
-              disabled={loading}
-              className={`w-full px-4 py-3 rounded border text-left transition-colors ${
-                !selectedSnapshot
-                  ? 'bg-text-accent text-bg-primary border-text-accent font-semibold'
-                  : 'bg-bg-hover border-border text-text-primary hover:border-text-accent'
-              }`}
-            >
-              <div className="text-sm font-medium">Day 18 Defaults</div>
-              <div className="text-[10px] opacity-75 mt-0.5">Original simulation parameters — no situation updates applied</div>
-            </button>
-
-            {/* Saved snapshots */}
-            {snapshots.length > 0 && (
+            {snapshots.length === 0 ? (
+              <p className="text-xs text-text-muted text-center py-4">
+                No saved baselines yet. Use Situation Updates to scrape news, approve events, and save a baseline.
+              </p>
+            ) : (
               <>
-                <div className="text-[10px] uppercase tracking-wider text-text-muted text-center">
-                  — or load a saved baseline —
-                </div>
-                <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                <div className="space-y-1.5 max-h-56 overflow-y-auto">
                   {snapshots.map(s => (
                     <button
                       key={s.id}
@@ -74,7 +72,7 @@ export function DashboardPage() {
                     disabled={loading}
                     className="w-full px-4 py-2.5 bg-text-accent text-bg-primary rounded font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                   >
-                    {loading ? 'Creating...' : 'Create from Selected Baseline'}
+                    {loading ? 'Creating...' : 'Create Simulation'}
                   </button>
                 )}
               </>
