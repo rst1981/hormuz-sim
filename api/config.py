@@ -1,5 +1,6 @@
 """Application configuration via pydantic-settings."""
 
+import os
 from pydantic_settings import BaseSettings
 
 
@@ -19,3 +20,11 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+# Also accept ANTHROPIC_API_KEY without prefix (common convention)
+if not settings.ANTHROPIC_API_KEY:
+    settings.ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+
+# Accept PORT without prefix (Railway sets PORT directly)
+if os.environ.get("PORT"):
+    settings.PORT = int(os.environ["PORT"])
