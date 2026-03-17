@@ -145,9 +145,9 @@ function BaselinePanel({
           </button>
         )}
       </div>
-      {(Object.entries(baseline) as [string, Record<string, number>][]).map(([category, params]) => {
+      {(Object.entries(baseline) as unknown as [string, Record<string, number>][]).map(([category, params]) => {
         const projectedParams = showImpact && projected
-          ? (projected as Record<string, Record<string, number>>)[category]
+          ? (projected as unknown as Record<string, Record<string, number>>)[category]
           : null;
 
         return (
