@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useUpdateStore } from '../stores/updateStore';
-import type { SituationUpdate, ParameterChange } from '../types';
+import type { SituationUpdate, ParameterChange, BaselineState } from '../types';
 
 const STATUS_COLORS: Record<string, string> = {
   pending: '#d29922',
@@ -109,7 +109,7 @@ function UpdateCard({
   );
 }
 
-function BaselinePanel({ baseline }: { baseline: Record<string, Record<string, number>> | null }) {
+function BaselinePanel({ baseline }: { baseline: BaselineState | null }) {
   if (!baseline) return null;
 
   return (

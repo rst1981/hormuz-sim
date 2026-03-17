@@ -22,7 +22,7 @@ interface UpdateStore {
   reject: (id: string) => Promise<void>;
 }
 
-export const useUpdateStore = create<UpdateStore>((set, get) => ({
+export const useUpdateStore = create<UpdateStore>((set, _get) => ({
   updates: [], baseline: null, availableDates: [], snapshots: [],
   loading: false, crawling: false, error: null,
 
