@@ -155,7 +155,7 @@ async def scrape_iranmonitor(
     logger.info(f"Scraped {len(all_events)} total events from {len(GOOGLE_NEWS_FEEDS)} feeds")
 
     # Filter to 2026+ only (simulation era)
-    all_events = [e for e in all_events if e.event_date and e.event_date >= "2026-01-01"]
+    all_events = [e for e in all_events if e.event_date and e.event_date >= "2026-02-25"]
 
     # Deduplicate against previously seen events
     new_events = [e for e in all_events if e.content_hash not in seen]
