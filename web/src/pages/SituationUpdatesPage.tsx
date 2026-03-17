@@ -115,14 +115,14 @@ function BaselinePanel({ baseline }: { baseline: BaselineState | null }) {
   return (
     <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
       <h3 className="text-xs uppercase tracking-wider text-text-muted">Current Baseline</h3>
-      {Object.entries(baseline).map(([category, params]) => (
+      {(Object.entries(baseline) as [string, Record<string, number>][]).map(([category, params]) => (
         <div key={category}>
           <div className="text-[10px] uppercase tracking-wider text-text-accent mb-1">{category.replace(/_/g, ' ')}</div>
           <div className="space-y-0.5">
             {Object.entries(params).map(([name, value]) => (
               <div key={name} className="flex justify-between text-xs font-mono">
                 <span className="text-text-muted">{name}</span>
-                <span className="text-text-primary">{typeof value === 'number' && value % 1 !== 0 ? value.toFixed(3) : value}</span>
+                <span className="text-text-primary">{typeof value === 'number' && value % 1 !== 0 ? value.toFixed(3) : String(value)}</span>
               </div>
             ))}
           </div>
