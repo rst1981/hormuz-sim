@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #0a0e14;
+  --color-bg-card: #111820;
+  --color-bg-hover: #1a2332;
+  --color-bg-input: #0d1117;
+  --color-border: #21262d;
+  --color-text-primary: #c9d1d9;
+  --color-text-muted: #8b949e;
+  --color-text-accent: #58a6ff;
+  --color-iran: #f0883e;
+  --color-coalition: #58a6ff;
+  --color-oil: #d29922;
+  --color-escalation: #f85149;
+  --color-ceasefire: #3fb950;
+  --color-collapse: #f85149;
+  --color-interceptor: #d29922;
+  --color-frozen: #8b949e;
+  --color-trump-rally: #f0883e;
+  --color-trump-deal: #3fb950;
+  --color-trump-escalation: #f85149;
+  --color-trump-distraction: #8b949e;
+  --color-faction-hardliners: #da3633;
+  --color-faction-pragmatists: #d29922;
+  --color-faction-civilian: #3fb950;
+  --color-faction-succession: #bc8cff;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0a0e14;
+  color: #c9d1d9;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0a0e14; }
+::-webkit-scrollbar-thumb { background: #21262d; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #30363d; }

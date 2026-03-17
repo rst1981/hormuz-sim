@@ -281,6 +281,18 @@ class TerminationState:
 
         return True
 
+    def to_dict(self) -> dict:
+        return {
+            "outcome": self.outcome.value,
+            "low_escalation_turns": self.low_escalation_turns,
+            "max_turns": self.max_turns,
+            "convergence_history": {
+                f"{a}_vs_{b}": vals
+                for (a, b), vals in self.convergence_history.items()
+            },
+            "ripeness_history": dict(self.ripeness_history),
+        }
+
     def get_convergence_report(
         self, agents: dict[str, Agent]
     ) -> dict:

@@ -92,6 +92,16 @@ class Action:
     # Costly signaling: what this action reveals
     signal_cost: float = 0.0            # how expensive/irreversible
 
+    def to_dict(self) -> dict:
+        return {
+            "action_type": self.action_type.value,
+            "target": self.target,
+            "intensity": self.intensity,
+            "parameters": self.parameters,
+            "description": self.description,
+            "signal_cost": self.signal_cost,
+        }
+
 
 # ---------------------------------------------------------------------------
 # Base agent
@@ -184,6 +194,20 @@ class Agent(ABC):
         1.0 = desperate for ceasefire
         """
         ...
+
+    def to_dict(self) -> dict:
+        return {
+            "agent_id": self.agent_id,
+            "name": self.name,
+            "type": self.__class__.__name__,
+            "active": self.active,
+            "p_victory": self.p_victory(),
+            "beliefs": self.beliefs.to_dict(),
+            "victory_weights": {
+                var.value: {"weight": w, "target": t}
+                for var, (w, t) in self.victory_weights.items()
+            },
+        }
 
 
 # ---------------------------------------------------------------------------
@@ -344,6 +368,15 @@ class MilitaryAgent(Agent):
 
         return actions if actions else [Action(ActionType.HOLD, intensity=0.3)]
 
+    def to_dict(self) -> dict:
+        d = super().to_dict()
+        d.update({
+            "min_acceptable_p_victory": self.min_acceptable_p_victory,
+            "cost_per_turn": self.cost_per_turn,
+            "accumulated_cost": self.accumulated_cost,
+        })
+        return d
+
 
 # ---------------------------------------------------------------------------
 # Political agent — Zartman ripeness
@@ -429,6 +462,18 @@ class PoliticalAgent(Agent):
                            description="Posturing while exploring")]
         else:
             return [Action(ActionType.HOLD, intensity=0.3)]
+
+    def to_dict(self) -> dict:
+        d = super().to_dict()
+        d.update({
+            "pain_threshold": self.pain_threshold,
+            "current_pain": self.current_pain,
+            "pain_rate": self.pain_rate,
+            "perceives_way_out": self.perceives_way_out,
+            "audience_cost": self.audience_cost,
+            "ripeness": self.ripeness(),
+        })
+        return d
 
 
 # ---------------------------------------------------------------------------
@@ -663,6 +708,23 @@ class StochasticAgent(Agent):
         }
         return mode_desire[self.current_mode]
 
+    def to_dict(self) -> dict:
+        d = super().to_dict()
+        d.update({
+            "current_mode": self.current_mode.value,
+            "turns_in_mode": self.turns_in_mode,
+            "mode_inertia": self.mode_inertia,
+            "max_mode_duration": self.max_mode_duration,
+            "transition_matrix": {
+                from_mode.value: {
+                    to_mode.value: prob
+                    for to_mode, prob in transitions.items()
+                }
+                for from_mode, transitions in self.transition_base.items()
+            },
+        })
+        return d
+
 
 # ---------------------------------------------------------------------------
 # Composite agent — Iran's splintered power structure
@@ -697,6 +759,17 @@ class Faction:
             weighted_sum += weight * distance
             total_weight += weight
         return weighted_sum / total_weight if total_weight > 0 else 0.5
+
+    def to_dict(self) -> dict:
+        return {
+            "faction_id": self.faction_id,
+            "name": self.name,
+            "influence": self.influence,
+            "hardline_score": self.hardline_score,
+            "p_victory": self.p_victory(),
+            "beliefs": self.beliefs.to_dict(),
+            "preferred_actions": [a.value for a in self.preferred_actions],
+        }
 
 
 @dataclass
@@ -965,6 +1038,16 @@ class CompositeAgent(Agent):
     def dominant_faction(self) -> Faction:
         return max(self.factions, key=lambda f: f.influence)
 
+    def to_dict(self) -> dict:
+        d = super().to_dict()
+        d.update({
+            "factions": [f.to_dict() for f in self.factions],
+            "dominant_faction": self.dominant_faction.name,
+            "resolution_mode": self.resolution_mode,
+            "veto_threshold": self.veto_threshold,
+        })
+        return d
+
 
 # ---------------------------------------------------------------------------
 # Proxy agent — patron-dependent with autonomy
@@ -1027,3 +1110,13 @@ class ProxyAgent(Agent):
     def wants_war_to_end(self, world_state: dict) -> float:
         """Proxies generally don't drive termination."""
         return 0.3  # low baseline desire to end
+
+    def to_dict(self) -> dict:
+        d = super().to_dict()
+        d.update({
+            "patron_id": self.patron_id,
+            "communication_reliability": self.communication_reliability,
+            "autonomy": self.autonomy,
+            "local_interest_weight": self.local_interest_weight,
+        })
+        return d

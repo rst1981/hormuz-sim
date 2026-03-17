@@ -31,6 +31,17 @@ class StraitStatus:
     # Is strait in "trap" mode (combat zone, all traffic at risk)?
     trap_mode: bool = False
 
+    def to_dict(self) -> dict:
+        return {
+            "chinese_flow": self.chinese_flow,
+            "indian_flow": self.indian_flow,
+            "russian_flow": self.russian_flow,
+            "western_flow": self.western_flow,
+            "gulf_state_flow": self.gulf_state_flow,
+            "trap_mode": self.trap_mode,
+            "overall_flow": self.overall_flow,
+        }
+
     @property
     def overall_flow(self) -> float:
         """Weighted average flow through strait."""
@@ -58,6 +69,13 @@ class RedSeaStatus:
     def activate_houthis(self) -> None:
         self.houthi_active = True
         self.flow = 0.3
+
+    def to_dict(self) -> dict:
+        return {
+            "houthi_active": self.houthi_active,
+            "flow": self.flow,
+            "suez_revenue_fraction": self.suez_revenue_fraction,
+        }
 
     @property
     def suez_revenue_fraction(self) -> float:
@@ -186,6 +204,24 @@ class OilMarket:
         self.price_history.append(self.price)
         return self.price
 
+    def to_dict(self) -> dict:
+        return {
+            "price": self.price,
+            "base_price": self.base_price,
+            "strait": self.strait.to_dict(),
+            "red_sea": self.red_sea.to_dict(),
+            "kharg_damaged": self.kharg_damaged,
+            "war_risk_premium": self.war_risk_premium,
+            "spr_releases": self.spr_releases,
+            "russian_backfill": self.russian_backfill,
+            "demand_destruction": self.demand_destruction,
+            "ceasefire_probability": self.ceasefire_probability,
+            "panic_level": self.panic_level,
+            "price_history": self.price_history,
+            "price_change_pct": self.price_change_pct,
+            "trend": self.trend,
+        }
+
     @property
     def price_change_pct(self) -> float:
         return ((self.price - self.base_price) / self.base_price) * 100
@@ -212,6 +248,14 @@ class InsuranceMarket:
     # Chinese state insurer (PICC)
     chinese_coverage: bool = True
     chinese_premium_mult: float = 3.0
+
+    def to_dict(self) -> dict:
+        return {
+            "western_coverage": self.western_coverage,
+            "western_premium_mult": self.western_premium_mult,
+            "chinese_coverage": self.chinese_coverage,
+            "chinese_premium_mult": self.chinese_premium_mult,
+        }
 
     # Premium trend
     def update(self, strait: StraitStatus) -> None:

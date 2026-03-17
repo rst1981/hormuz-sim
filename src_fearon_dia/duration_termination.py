@@ -147,6 +147,27 @@ class DurationTermination:
         # Default: ceasefire (the most common negotiated termination)
         return TerminationOutcome.CEASEFIRE
 
+    def to_dict(self) -> dict:
+        """Serialize to dict — compatible with TerminationState.to_dict() interface."""
+        n = len(self.ensemble.ensemble_hazard_history)
+        return {
+            "outcome": self.outcome.value,
+            "low_escalation_turns": self.low_escalation_turns,
+            "max_turns": self.max_turns,
+            "branch": "fearon_dia",
+            "ensemble_strategy": self.ensemble.strategy.value,
+            "ensemble_hazard": self.ensemble.ensemble_hazard_history[-1] if self.ensemble.ensemble_hazard_history else 0.0,
+            "survival_probability": self.ensemble.survival_probability(n) if n > 0 else 1.0,
+            "hazard_curve": {
+                "ensemble": list(self.ensemble.ensemble_hazard_history),
+                "fearon": list(self.ensemble.fearon_hazard_history),
+                "dia": list(self.ensemble.dia_hazard_history),
+            },
+            "weight_evolution": list(self.ensemble.weight_history),
+            "convergence_history": {},
+            "ripeness_history": {},
+        }
+
     def get_convergence_report(self, agents: dict[str, Agent]) -> dict:
         """
         Generate a report compatible with Branch A's format.

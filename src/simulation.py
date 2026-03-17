@@ -78,6 +78,32 @@ class GroundTruth:
     # Regime survival composite index
     regime_survival_index: float = 0.45
 
+    def to_dict(self) -> dict:
+        """JSON-serializable representation."""
+        return {
+            "mojtaba_alive": self.mojtaba_alive,
+            "irgc_cohesion": self.irgc_cohesion,
+            "iran_missile_stocks": self.iran_missile_stocks,
+            "iran_drone_stocks": self.iran_drone_stocks,
+            "israel_interceptor_stocks": self.israel_interceptor_stocks,
+            "us_pgm_stocks": self.us_pgm_stocks,
+            "iran_nuclear_progress": self.iran_nuclear_progress,
+            "iran_cyber_capability": self.iran_cyber_capability,
+            "fordow_destroyed": self.fordow_destroyed,
+            "kharg_terminal_damaged": self.kharg_terminal_damaged,
+            "russia_supplying_iran": self.russia_supplying_iran,
+            "china_willing_to_guarantee": self.china_willing_to_guarantee,
+            "us_political_will": self.us_political_will,
+            "israel_will_to_continue": self.israel_will_to_continue,
+            "houthi_activation_prob": self.houthi_activation_prob,
+            "hezbollah_full_war_prob": self.hezbollah_full_war_prob,
+            "uprising_intensity": self.uprising_intensity,
+            "uprising_irgc_drain": self.uprising_irgc_drain,
+            "irgc_casualties_cumulative": self.irgc_casualties_cumulative,
+            "uprising_casualties_cumulative": self.uprising_casualties_cumulative,
+            "regime_survival_index": self.regime_survival_index,
+        }
+
     def as_dict(self) -> dict[BeliefVar, float]:
         """Map to BeliefVar for comparison with agent beliefs."""
         return {
@@ -290,11 +316,12 @@ def build_world_state(
     oil_market: OilMarket,
     escalation: EscalationState,
     turn: int,
+    day: int | None = None,
 ) -> dict:
     """Build the world state dict from current conditions."""
     return {
         "turn": turn,
-        "day": 18 + turn * 2,
+        "day": day if day is not None else 18 + turn * 2,
         "oil_price": oil_market.price,
         "escalation_level": escalation.level,
         "escalation_phase": escalation.phase,
@@ -580,6 +607,28 @@ class TurnReport:
     key_metrics: dict
     miscalculation_events: list[str]
 
+    def to_dict(self) -> dict:
+        return {
+            "turn": self.turn,
+            "day": self.day,
+            "actions": [
+                {"agent_id": aid, "action": a.to_dict()}
+                for aid, a in self.actions
+            ],
+            "random_events": [
+                {"name": e.name, "description": e.description}
+                for e in self.random_events
+            ],
+            "oil_price": self.oil_price,
+            "escalation_level": self.escalation_level,
+            "escalation_phase": self.escalation_phase,
+            "termination_status": self.termination_status,
+            "trump_mode": self.trump_mode,
+            "iran_dominant_faction": self.iran_dominant_faction,
+            "key_metrics": self.key_metrics,
+            "miscalculation_events": self.miscalculation_events,
+        }
+
     def summary(self) -> str:
         lines = [
             f"=== Turn {self.turn} (Day {self.day}) ===",
@@ -632,9 +681,33 @@ class Simulation:
     # Variant configuration
     variant: str = "baseline"
 
-    def setup(self, variant: str = "baseline", max_turns: int = 120) -> None:
-        """Initialize the simulation with all agents and Day 18 state."""
+    # Date anchoring
+    start_day: int = 18  # Day of war when simulation begins
+    start_date: str = "2026-03-15"  # Calendar date for turn 0
+
+    @property
+    def day(self) -> int:
+        """Current day of war."""
+        return self.start_day + self.turn * 2
+
+    @property
+    def calendar_date(self) -> str:
+        """Current calendar date (ISO format)."""
+        from datetime import date, timedelta
+        base = date.fromisoformat(self.start_date)
+        return (base + timedelta(days=self.turn * 2)).isoformat()
+
+    def setup(
+        self,
+        variant: str = "baseline",
+        max_turns: int = 120,
+        start_day: int = 18,
+        start_date: str = "2026-03-15",
+    ) -> None:
+        """Initialize the simulation with all agents and starting state."""
         self.variant = variant
+        self.start_day = start_day
+        self.start_date = start_date
         self.agents = create_agents()
         self.ground_truth = GroundTruth()
         self.info_env = InfoEnvironment()
@@ -674,7 +747,8 @@ class Simulation:
 
         # 1. Build world state
         world_state = build_world_state(
-            self.ground_truth, self.oil_market, self.escalation, self.turn
+            self.ground_truth, self.oil_market, self.escalation, self.turn,
+            day=self.day,
         )
 
         # 2. Generate ambient signals from ground truth
@@ -767,7 +841,7 @@ class Simulation:
 
         report = TurnReport(
             turn=self.turn,
-            day=18 + self.turn * 2,
+            day=self.day,
             actions=all_actions,
             random_events=random_events,
             oil_price=self.oil_market.price,
@@ -836,6 +910,23 @@ class Simulation:
                 break
 
         return self.termination.outcome
+
+    def to_dict(self) -> dict:
+        """Full simulation state as JSON-serializable dict."""
+        return {
+            "turn": self.turn,
+            "day": self.day,
+            "calendar_date": self.calendar_date,
+            "start_day": self.start_day,
+            "start_date": self.start_date,
+            "variant": self.variant,
+            "ground_truth": self.ground_truth.to_dict(),
+            "agents": {aid: a.to_dict() for aid, a in self.agents.items()},
+            "oil_market": self.oil_market.to_dict(),
+            "escalation": self.escalation.to_dict(),
+            "termination": self.termination.to_dict(),
+            "insurance": self.insurance.to_dict(),
+        }
 
     def get_metrics_csv(self) -> str:
         """Export all turn metrics as CSV."""

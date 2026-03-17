@@ -178,6 +178,16 @@ class BetaBelief:
         except (ValueError, OverflowError):
             return float('inf')
 
+    def to_dict(self) -> dict:
+        return {
+            "type": "beta",
+            "alpha": self.alpha,
+            "beta": self.beta,
+            "mean": self.mean,
+            "std": self.std,
+            "concentration": self.concentration,
+        }
+
     def copy(self) -> BetaBelief:
         return BetaBelief(alpha=self.alpha, beta=self.beta)
 
@@ -245,6 +255,14 @@ class GaussianBelief:
                       + v_self / v_other
                       + (self.mean - other.mean) ** 2 / v_other
                       - 1.0)
+
+    def to_dict(self) -> dict:
+        return {
+            "type": "gaussian",
+            "mean": self.mean,
+            "precision": self.precision,
+            "std": self.std,
+        }
 
     def copy(self) -> GaussianBelief:
         return GaussianBelief(mean=self.mean, precision=self.precision)
@@ -350,6 +368,12 @@ class BeliefState:
         victory function that weights variables differently.
         """
         return self.mean(BeliefVar.REGIME_SURVIVAL_PROB)
+
+    def to_dict(self) -> dict:
+        return {
+            var.value: belief.to_dict()
+            for var, belief in self.beliefs.items()
+        }
 
     def copy(self) -> BeliefState:
         new = BeliefState(

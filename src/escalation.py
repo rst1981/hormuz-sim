@@ -299,6 +299,16 @@ class EscalationState:
         else:
             return "gulf"
 
+    def to_dict(self) -> dict:
+        return {
+            "level": self.level,
+            "phase": self.phase,
+            "trend": self.trend,
+            "richardson_state": self.richardson_state,
+            "history": self.history,
+            "miscalculation_events": list(self.miscalculation_events),
+        }
+
     @property
     def trend(self) -> str:
         if len(self.history) < 3:
